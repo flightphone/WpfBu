@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfBu.Models;
 
 namespace WpfBu
 {
@@ -22,8 +23,8 @@ namespace WpfBu
     {
         public MainWindow()
         {
+            DataContext = new MainWindowModel();
             InitializeComponent();
-            mainTree.Items.Add("rrrrr");
         }
         private void MenuToggleButton_OnClick(object sender, RoutedEventArgs e)
             => mainTree.Focus();
