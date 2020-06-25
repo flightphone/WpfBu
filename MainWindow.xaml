@@ -1,0 +1,142 @@
+﻿<Window x:Class="WpfBu.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfBu"
+        mc:Ignorable="d"
+        Title="uSmart 3.0" Height="450" Width="800" WindowState="Maximized"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{materialDesign:MaterialDesignFont}" 
+        >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Shadows.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <DockPanel MinWidth="220">
+                    <ToggleButton 
+                        Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
+                        DockPanel.Dock="Top"
+                        HorizontalAlignment="Right" 
+                        Margin="16"
+                        IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
+
+                    <TextBox 
+                        x:Name="DemoItemsSearchBox"
+                        Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                        DockPanel.Dock="Top"
+                        Margin="16, 4"
+                        Width="200"
+                        BorderThickness="0"
+                        materialDesign:HintAssist.Hint="Поиск"
+                        materialDesign:HintAssist.IsFloating="True"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                        materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
+                        materialDesign:TextFieldAssist.TextFieldCornerRadius="4"/>
+
+                    <TreeView x:Name="mainTree">
+                        <TreeViewItem>
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Viewbox Width="24" Height="24">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Fill="Aqua" Data="M9,10V12H7V10H9M13,10V12H11V10H13M17,10V12H15V10H17M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H6V1H8V3H16V1H18V3H19M19,19V8H5V19H19M9,14V16H7V14H9M13,14V16H11V14H13M17,14V16H15V14H17Z" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <Label Content="Базы данных" />
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <TreeViewItem Header="MS SQL Server" />
+                            <TreeViewItem Header="MySQL" />
+                            <TreeViewItem Header="MongoDB" />
+                            <TreeViewItem Header="Postgres" />
+                        </TreeViewItem>
+                        <TreeViewItem Header="Языки программирования">
+                            <TreeViewItem Header="C-языки">
+                                <TreeViewItem Header="C#" />
+                                <TreeViewItem Header="C/C++" />
+                                <TreeViewItem Header="Javaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" />
+                            </TreeViewItem>
+                            <TreeViewItem Header="Basic">
+                                <TreeViewItem Header="Visual Basic"/>
+                                <TreeViewItem Header="VB.Net" />
+                                <TreeViewItem Header="PureBasic" />
+                            </TreeViewItem>
+                        </TreeViewItem>
+                    </TreeView>
+                    
+                </DockPanel>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+    <DockPanel>
+        <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                          Mode="PrimaryMid" DockPanel.Dock="Top">
+                    <DockPanel>
+                        <ToggleButton
+                            x:Name="MenuToggleButton"
+                            Style="{StaticResource MaterialDesignHamburgerToggleButton}"
+                            IsChecked="False"
+                            ToolTip="Меню"
+                            Click="MenuToggleButton_OnClick"
+                            AutomationProperties.Name="HamburgerToggleButton"
+                        />
+
+                        
+                        
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="8 0 8 0"
+                            ToolTip="Добавить">
+                            <materialDesign:PackIcon Kind="Plus" Height="24" Width="24" />
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                            ToolTip="Редактировать">
+                            <materialDesign:PackIcon Kind="Edit" Height="24" Width="24" />
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                                ToolTip="Удалить">
+                            <materialDesign:PackIcon Kind="Delete" Height="24" Width="24" />
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                            ToolTip="Фильтр и сортировка">
+                            <materialDesign:PackIcon Kind="FilterMenu" Height="24" Width="24" />
+                        </Button>
+                        
+                        
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                                ToolTip="Страницы">
+                            3
+                        </Button>
+
+                        <TextBlock VerticalAlignment="Center" FontSize="22" AutomationProperties.Name="Material Design In XAML Toolkit">База договоров</TextBlock>
+                    </DockPanel>
+                </materialDesign:ColorZone>
+    </DockPanel>
+        </materialDesign:DrawerHost>
+    </materialDesign:DialogHost>
+</Window>

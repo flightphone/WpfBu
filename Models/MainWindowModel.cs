@@ -1,0 +1,82 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace WpfBu.Models
+{
+    public class treeItem
+    {
+        public string id { get; set; }
+        public string text { get; set; }
+        public List<object> children { get; set; }
+
+        public string iconCls { get; set; }
+
+        public Dictionary<string, string> attributes { get; set; }
+
+        public string state { get; set; }
+
+        public treeItem(string t)
+        {
+            text = t;
+        }
+    }
+
+    public class MainObj {
+        public static string ConnectionString = @"data source=localhost\SQLEXPRESS8;User ID=sa;Password=aA12345678;database=uFlights";
+        public static string Account;
+    }
+    public class MainWindowModel
+    {
+        public List<object> MovieCategories { get; }
+
+        private DataTable menuTab { get;  }
+
+        public MainWindowModel()
+        {
+            menuTab = new DataTable();
+            string sql = "select a.* , dbo.fn_getmenuimageid(a.caption) idimage from fn_mainmenu('WEB', @Account) a order by a.ordmenu, idmenu";
+            var da = new SqlDataAdapter(sql, MainObj.ConnectionString);
+            da.SelectCommand.Parameters.AddWithValue("@Account", MainObj.Account);
+            da.Fill(menuTab);
+        }
+
+        public void CreateItems(string Root, treeItem Mn, DataTable Tab)
+        {
+
+            var ListCaption = new List<string>();
+            var k = Root.Split('/', StringSplitOptions.RemoveEmptyEntries).Length;
+            for (var x = 0; x < Tab.Rows.Count; x++)
+            {
+                var mi = Tab.Rows[x];
+                var Caption = mi["caption"].ToString();
+                if (Caption.IndexOf(Root) == 0)
+                {
+                    var bi = Caption.Split('/');
+                    var ItemCaption = bi[k];
+                    if (ListCaption.IndexOf(ItemCaption) == -1)
+                    {
+                        ListCaption.Add(ItemCaption);
+                        treeItem ilist = new treeItem(ItemCaption);
+                        ilist.id = (k == bi.Length - 1) ? mi["idmenu"].ToString() : mi["idmenu"].ToString() + "_node";
+                        ilist.attributes = new Dictionary<string, string>() { { "link1", mi["link1"].ToString() }, { "params", mi["params"].ToString() } };
+                        if ((int)mi["idimage"] > 0)
+                            ilist.iconCls = "tree-" + mi["idimage"].ToString();
+
+                        if (Mn.children == null)
+                        { Mn.children = new List<object>(); }
+                        Mn.children.Add(ilist);
+                        Mn.state = "closed";
+                        if (k != bi.Length - 1)
+                        {
+                            CreateItems(Root + ItemCaption + "/", ilist, Tab);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
