@@ -83,8 +83,8 @@
                             AutomationProperties.Name="HamburgerToggleButton"
                         />
 
-                        
-                        
+
+                        <DockPanel x:Name="userMenu" Visibility="Visible">
                         <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                             HorizontalAlignment="Left"
                             Margin="8 0 8 0"
@@ -120,8 +120,8 @@
                                 ToolTip="Страницы">
                             3
                         </Button>
-
                         <TextBlock VerticalAlignment="Center" FontSize="22" AutomationProperties.Name="Material Design In XAML Toolkit">База договоров</TextBlock>
+                        </DockPanel>    
                     </DockPanel>
                 </materialDesign:ColorZone>
     </DockPanel>
