@@ -51,6 +51,8 @@
 
                     <TreeView x:Name="mainTree"
                      ItemsSource="{Binding MovieCategories}"
+                     SelectedItemChanged="mainTree_SelectedItemChanged"
+                     
                               >
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Path=children}">
@@ -82,48 +84,11 @@
                             Click="MenuToggleButton_OnClick"
                             AutomationProperties.Name="HamburgerToggleButton"
                         />
-
-
-                        <DockPanel x:Name="userMenu" Visibility="Visible">
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                            HorizontalAlignment="Left"
-                            Margin="8 0 8 0"
-                            ToolTip="Добавить">
-                            <materialDesign:PackIcon Kind="Plus" Height="24" Width="24" />
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                            HorizontalAlignment="Left"
-                            Margin="0 0 8 0"
-                            ToolTip="Редактировать">
-                            <materialDesign:PackIcon Kind="Edit" Height="24" Width="24" />
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                            HorizontalAlignment="Left"
-                            Margin="0 0 8 0"
-                                ToolTip="Удалить">
-                            <materialDesign:PackIcon Kind="Delete" Height="24" Width="24" />
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                            HorizontalAlignment="Left"
-                            Margin="0 0 8 0"
-                            ToolTip="Фильтр и сортировка">
-                            <materialDesign:PackIcon Kind="FilterMenu" Height="24" Width="24" />
-                        </Button>
-                        
-                        
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
-                            HorizontalAlignment="Left"
-                            Margin="0 0 8 0"
-                                ToolTip="Страницы">
-                            3
-                        </Button>
-                        <TextBlock VerticalAlignment="Center" FontSize="22" AutomationProperties.Name="Material Design In XAML Toolkit">База договоров</TextBlock>
-                        </DockPanel>    
+                        <ContentControl x:Name="userMenu">
+                        </ContentControl>
                     </DockPanel>
                 </materialDesign:ColorZone>
+        <ContentControl x:Name="userContent" />
     </DockPanel>
         </materialDesign:DrawerHost>
     </materialDesign:DialogHost>

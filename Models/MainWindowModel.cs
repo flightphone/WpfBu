@@ -35,10 +35,7 @@ namespace WpfBu.Models
         }
     }
 
-    public class MainObj {
-        public static string ConnectionString = @"data source=localhost\SQLEXPRESS8;User ID=sa;Password=aA12345678;database=uFlights";
-        public static string Account="malkin";
-    }
+    
     public class MainWindowModel : INotifyPropertyChanged
     {
 
@@ -48,6 +45,7 @@ namespace WpfBu.Models
 
         private DataTable menuTab { get; set; }
 
+        /*
         private void createImage()
         {
             if (!Directory.Exists("images"))
@@ -67,16 +65,27 @@ namespace WpfBu.Models
                 bmp.Save(fname, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
-
+        */
         public MainWindowModel()
         {
             //createImage();
-
-            menuTab = new DataTable();
-            string sql = "select a.* , dbo.fn_getmenuimageid(a.caption) idimage from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
-            var da = new SqlDataAdapter(sql, MainObj.ConnectionString);
-            da.SelectCommand.Parameters.AddWithValue("@Account", MainObj.Account);
-            da.Fill(menuTab);
+            MainObj.IsPostgres = false;
+            string sql;
+            if (MainObj.IsPostgres)
+            {
+                MainObj.ConnectionString = @"Host=localhost;Username=postgres;Password=aA12345678;Database=uflights";
+                MainObj.Account = "Admin";
+                sql = "select a.* , fn_getmenuimageid(a.caption) idimage from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
+            }
+            else
+            {
+                MainObj.ConnectionString = @"data source=localhost\SQLEXPRESS8;User ID=sa;Password=aA12345678;database=uFlights";
+                MainObj.Account = "malkin";
+                sql = "select a.* , dbo.fn_getmenuimageid(a.caption) idimage from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
+            }
+            MainObj.Dbutil = new DBUtil();
+            Dictionary<string, object> par = new Dictionary<string, object> { {"@Account", MainObj.Account } };
+            menuTab = MainObj.Dbutil.Runsql(sql, par);
             FilterItems("");
         }
         private void FilterItems(string keyword)
