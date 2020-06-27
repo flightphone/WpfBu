@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WpfBu.Models
 {
-    class RootForm
+    public class RootForm
     {
         public string id { get; set; }
         public string text { get; set; }

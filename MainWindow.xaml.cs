@@ -29,6 +29,19 @@ namespace WpfBu
             DataContext = new MainWindowModel();
             formList = new Dictionary<string, RootForm>();
             InitializeComponent();
+            treeItem it = new treeItem("")
+            {
+                id = "81",
+                attributes = new Dictionary<string, string> { { "link1", "RegulationPrint.FlightCardsList" }, { "params", "134"} }
+            };
+            RootForm fm = FindOrCreate(it);
+            if (fm != null)
+            {
+                userMenu.Content = fm.userMenu;
+                userContent.Content = fm.userContent;
+                MenuToggleButton.IsChecked = false;
+            }
+            //81 134
         }
         private void MenuToggleButton_OnClick(object sender, RoutedEventArgs e)
             => mainTree.Focus();
@@ -55,6 +68,17 @@ namespace WpfBu
             
         }
 
+        private RootForm Create(treeItem it)
+        {
+            RootForm res = null;
+            if (!string.IsNullOrEmpty(it.attributes["params"]))
+            {
+                res = new Finder();
+                res.start(it.attributes["params"]);
+            }
+            return res;
+        }
+
         private RootForm FindOrCreate(treeItem it)
         {
             
@@ -65,8 +89,8 @@ namespace WpfBu
             }
             else
             {
-                
-
+                res = Create(it);
+                /*
                 res = new RootForm
                 {
                     userMenu = new TextBlock() { 
@@ -75,7 +99,8 @@ namespace WpfBu
                     FontSize = 22,
                     Text = "Не реализовано"
                     },
-                    /*new Button
+                    
+                    new Button
                     {
                         Style = (Style)Resources["MaterialDesignFloatingActionMiniAccentButton"],
                         HorizontalAlignment = HorizontalAlignment.Left,
@@ -87,16 +112,20 @@ namespace WpfBu
                             Height = 24,
                             Width = 24
                         }
-                    },*/
-                    userContent = null/*new TextBox
+                    },
+                    
+                    userContent = new TextBox
                     {
                         TextWrapping = TextWrapping.Wrap,
                         AcceptsReturn = true,
                         VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    }*/
+                    }
+                    
                 };
+                */
                 //HintAssist.SetHint((DependencyObject)res.userContent, "Введите текст");
-                formList.Add(it.id, res);
+                if (res!=null)
+                    formList.Add(it.id, res);
             }
             return res;
         }

@@ -9,6 +9,8 @@ using System.IO;
 using System.Windows.Media;
 using System.Drawing;
 using System.Windows.Media.Animation;
+using MaterialDesignThemes;
+using MaterialDesignThemes.Wpf;
 
 namespace WpfBu.Models
 {
@@ -19,6 +21,8 @@ namespace WpfBu.Models
         public ObservableCollection<treeItem> children { get; set; }
 
         public string iconCls { get; set; }
+
+        public PackIconKind Kind { get; set; }
 
         public Dictionary<string, string> attributes { get; set; }
 
@@ -75,13 +79,13 @@ namespace WpfBu.Models
             {
                 MainObj.ConnectionString = @"Host=localhost;Username=postgres;Password=aA12345678;Database=uflights";
                 MainObj.Account = "Admin";
-                sql = "select a.* , fn_getmenuimageid(a.caption) idimage from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
+                sql = "select a.*, '' web  from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
             }
             else
             {
                 MainObj.ConnectionString = @"data source=localhost\SQLEXPRESS8;User ID=sa;Password=aA12345678;database=uFlights";
                 MainObj.Account = "malkin";
-                sql = "select a.* , dbo.fn_getmenuimageid(a.caption) idimage from fn_mainmenu('ALL', @Account) a order by a.ordmenu, idmenu";
+                sql = "select a.* from fn_mainmenuweb('ALL', @Account) a order by a.ordmenu, idmenu";
             }
             MainObj.Dbutil = new DBUtil();
             Dictionary<string, object> par = new Dictionary<string, object> { {"@Account", MainObj.Account } };
@@ -106,6 +110,7 @@ namespace WpfBu.Models
             {
                 var mi = Tab[x];
                 var Caption = mi["caption"].ToString();
+                var ItemIcon = mi["web"].ToString();
                 if (Caption.IndexOf(Root) == 0)
                 {
                     var bi = Caption.Split('/');
@@ -116,16 +121,38 @@ namespace WpfBu.Models
                         treeItem ilist = new treeItem(ItemCaption);
                         ilist.id = (k == bi.Length - 1) ? mi["idmenu"].ToString() : mi["idmenu"].ToString() + "_node";
                         ilist.attributes = new Dictionary<string, string>() { { "link1", mi["link1"].ToString() }, { "params", mi["params"].ToString() } };
+                        
+                        /*
                         if ((int)mi["idimage"] > 0)
                             ilist.iconCls = "images/i" + mi["idimage"].ToString() + ".png";
                         else
                             ilist.iconCls = "images/i0.png";
+                        */
+                        if (string.IsNullOrEmpty(ItemIcon))
+                            ilist.Kind = PackIconKind.Paper;
+                        else
+                            ilist.Kind = (PackIconKind)Enum.Parse(typeof(PackIconKind), ItemIcon);
 
 
                         if (Mn.children == null)
                         { Mn.children = new ObservableCollection<treeItem>(); }
                         Mn.children.Add(ilist);
                         Mn.state = "closed";
+
+                        if (string.IsNullOrEmpty(ItemIcon))
+                        {
+                            if (Mn.Kind == PackIconKind.Paper)
+                                Mn.Kind = PackIconKind.Folder;
+                        }
+                        else
+                        {
+                            if (Mn.Kind == PackIconKind.Paper || Mn.Kind == PackIconKind.Folder)
+                                Mn.Kind = (PackIconKind)Enum.Parse(typeof(PackIconKind), ItemIcon);
+                        }
+
+
+                        
+                        
                         if (k != bi.Length - 1)
                         {
                             CreateItems(Root + ItemCaption + "/", ilist, Tab);
