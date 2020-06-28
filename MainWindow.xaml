@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfBu"
         mc:Ignorable="d"
+        xmlns:domain="clr-namespace:WpfBu.Models"
         Title="uSmart 3.0" Height="450" Width="800" WindowState="Maximized"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -88,8 +89,43 @@
                         </ContentControl>
                     </DockPanel>
                 </materialDesign:ColorZone>
-        <ContentControl x:Name="userContent" />
-    </DockPanel>
+                <ContentControl x:Name="userContent">
+                    <DockPanel>
+                        <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                                          Mode="Accent" DockPanel.Dock="Top">
+                            <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка и сортировка</TextBlock>
+                        </materialDesign:ColorZone>
+                        <DataGrid CanUserAddRows="False" 
+                           AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding FieldCaption}"
+                                            Header="Поле"
+                                            ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"
+                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                            IsReadOnly="True"
+                                                    Width="auto"
+                                                    />
+
+                                <DataGridTextColumn Binding="{Binding FindString}"
+                                            Header="Строка поиска"
+                                            ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"
+                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                            Width="*"/>
+
+                                <materialDesign:DataGridComboBoxColumn Header="Сортировка" IsEditable="True"
+                                                               Width="150"
+                                                               SelectedValueBinding="{Binding Sort}"
+                                                               ItemsSourceBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path= DataContext.Foods}"
+                                                                       
+                                                                       >
+                                    
+                                </materialDesign:DataGridComboBoxColumn>
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+                    </DockPanel>
+                </ContentControl>
+            </DockPanel>
         </materialDesign:DrawerHost>
     </materialDesign:DialogHost>
 </Window>

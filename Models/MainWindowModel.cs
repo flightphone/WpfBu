@@ -70,9 +70,48 @@ namespace WpfBu.Models
             }
         }
         */
+        //Для теста
+        public List<FinderField> Fcols { get; set; }
         public MainWindowModel()
         {
             //createImage();
+            //для теста
+            Fcols = new List<FinderField>
+            {
+                new FinderField()
+                {
+                    FieldCaption = "Номер_ВС",
+                    Sort = "Нет"
+                },
+                new FinderField()
+                {
+                    FieldCaption = "Тип ВС",
+                    Sort = "Нет"
+                },
+                new FinderField()
+                {
+                    FieldCaption = "Авиакомпания",
+                    Sort = "Нет"
+                },
+                new FinderField()
+                {
+                    FieldCaption = "Синоним",
+                    Sort = "Нет"
+                },
+                new FinderField()
+                {
+                    FieldCaption = "Весовая категория",
+                    Sort = "Нет"
+                },
+                new FinderField()
+                {
+                    FieldCaption = "Масса",
+                    Sort = "Нет"
+                }
+
+
+            };
+
             MainObj.IsPostgres = false;
             string sql;
             if (MainObj.IsPostgres)
@@ -173,6 +212,9 @@ namespace WpfBu.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MovieCategories)));
             }
         }
+
+        public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
+
     }
 }
 

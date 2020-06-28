@@ -13,6 +13,7 @@ namespace WpfBu.Models
         public static string Account { get; set; }
         public static DBUtil Dbutil { get; set; }
         public static bool IsPostgres { get; set; }
+        
     }
 
     public class DBUtil

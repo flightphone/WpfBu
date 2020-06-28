@@ -18,6 +18,8 @@ namespace WpfBu.Models
         public int Width { get; set; }
         public bool Visible { get; set; }
         public string DisplayFormat { get; set; }
+        public string FindString { get; set; }
+        public string Sort { get; set; }
     }
 
     public class Finder : RootForm
@@ -105,14 +107,18 @@ namespace WpfBu.Models
                     int.TryParse(xCol.Attributes["Width"].Value, out Width);
                     bool Vis = (xCol.Attributes["Visible"].Value == "1");
                     string DispFormat = xCol.Attributes["DisplayFormat"].Value;
-                    Fcols.Add(new FinderField()
+                    if (Vis)
                     {
-                        FieldName = FName,
-                        FieldCaption = Title,
-                        Width = Width,
-                        DisplayFormat = DispFormat,
-                        Visible = Vis
-                    });
+                        Fcols.Add(new FinderField()
+                        {
+                            FieldName = FName,
+                            FieldCaption = Title,
+                            Width = Width,
+                            DisplayFormat = DispFormat,
+                            Visible = Vis,
+                            Sort = "Нет"
+                        });
+                    }
                 }
             }
 
@@ -136,7 +142,8 @@ namespace WpfBu.Models
                     MainGrid.Columns.Add(new DataGridTextColumn()
                     {
                         Header = f.FieldCaption,
-                        Binding = bn
+                        Binding = bn,
+                        MaxWidth = 500
                     });
                 }
             }

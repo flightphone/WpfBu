@@ -26,9 +26,15 @@ namespace WpfBu
         private Dictionary<string, RootForm> formList { get; set; }
         public MainWindow()
         {
-            DataContext = new MainWindowModel();
+            var dat = new MainWindowModel();
+            DataContext = dat;
             formList = new Dictionary<string, RootForm>();
             InitializeComponent();
+            FilterGrid.ItemsSource = dat.Fcols;
+            dat.Fcols[0].FindString = "aaaa";
+            dat.Fcols[0].Sort = "По убыванию";
+
+            /*
             treeItem it = new treeItem("")
             {
                 id = "81",
@@ -41,6 +47,7 @@ namespace WpfBu
                 userContent.Content = fm.userContent;
                 MenuToggleButton.IsChecked = false;
             }
+            */
             //81 134
         }
         private void MenuToggleButton_OnClick(object sender, RoutedEventArgs e)
