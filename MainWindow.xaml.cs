@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using WpfBu.Models;
 using MaterialDesignThemes;
 using MaterialDesignThemes.Wpf;
+using System.Collections.ObjectModel;
 
 namespace WpfBu
 {
@@ -24,16 +25,19 @@ namespace WpfBu
     public partial class MainWindow : Window
     {
         private Dictionary<string, RootForm> formList { get; set; }
+        private ObservableCollection<RootForm> WinListSource { get; set; }
         public MainWindow()
         {
             var dat = new MainWindowModel();
             DataContext = dat;
             formList = new Dictionary<string, RootForm>();
+            WinListSource = new ObservableCollection<RootForm>();
             InitializeComponent();
-            FilterGrid.ItemsSource = dat.Fcols;
-            dat.Fcols[0].FindString = "aaaa";
-            dat.Fcols[0].Sort = "По убыванию";
-
+            WinList.ItemsSource = WinListSource;
+            //FilterGrid.ItemsSource = dat.Fcols;
+            //dat.Fcols[0].FindString = "aaaa";
+            //dat.Fcols[0].Sort = "По убыванию";
+            
             /*
             treeItem it = new treeItem("")
             {
@@ -81,6 +85,7 @@ namespace WpfBu
             if (!string.IsNullOrEmpty(it.attributes["params"]))
             {
                 res = new Finder();
+                res.id = it.id;
                 res.start(it.attributes["params"]);
             }
             return res;
@@ -131,15 +136,15 @@ namespace WpfBu
                 };
                 */
                 //HintAssist.SetHint((DependencyObject)res.userContent, "Введите текст");
-                if (res!=null)
+                if (res != null)
+                {
                     formList.Add(it.id, res);
+                    WinListSource.Add(res);
+                }
             }
             return res;
         }
 
-        private void mainTree_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-
-        }
+        
     }
 }

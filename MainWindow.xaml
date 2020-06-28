@@ -85,7 +85,44 @@
                             Click="MenuToggleButton_OnClick"
                             AutomationProperties.Name="HamburgerToggleButton"
                         />
+
+
+
+                        <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False" ToolTip="Открытые окна">
+                            <DockPanel Background="White">
+                                <ListBox x:Name="WinList" Background="White" Foreground="Black">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding text}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </materialDesign:PopupBox>
+
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="8 0 8 0"
+                            ToolTip="Фильтр и сортировка">
+                                <materialDesign:PackIcon Kind="FilterMenu" Height="24" Width="24" Foreground="MediumBlue"/>
+                            </Button>
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                            ToolTip="Очистить фильтр">
+                                <materialDesign:PackIcon Kind="FilterRemove" Height="24" Width="24" Foreground="MediumBlue"/>
+                            </Button>
+                            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                            ToolTip="Фильтр и сортировка">
+                                <materialDesign:PackIcon Kind="FileCsv" Height="24" Width="24" Foreground="MediumBlue"/>
+                            </Button>
+                        </StackPanel>
+
                         <ContentControl x:Name="userMenu">
+                            <TextBlock VerticalAlignment="Center" FontSize="22" HorizontalAlignment="Center">Номера ВС</TextBlock>
                         </ContentControl>
                     </DockPanel>
                 </materialDesign:ColorZone>
@@ -96,7 +133,9 @@
                             <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка и сортировка</TextBlock>
                         </materialDesign:ColorZone>
                         <DataGrid CanUserAddRows="False" 
-                           AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None">
+                           AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None"
+                                  ItemsSource="{Binding Fcols}"
+                                  >
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding FieldCaption}"
                                             Header="Поле"
@@ -112,7 +151,7 @@
                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
                                             Width="*"/>
 
-                                <materialDesign:DataGridComboBoxColumn Header="Сортировка" IsEditable="True"
+                                <materialDesign:DataGridComboBoxColumn Header="Сортировка" IsEditable="False"
                                                                Width="150"
                                                                SelectedValueBinding="{Binding Sort}"
                                                                ItemsSourceBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path= DataContext.Foods}"

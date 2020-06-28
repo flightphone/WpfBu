@@ -56,6 +56,7 @@ namespace WpfBu.Models
                 SQLText = rd["decsql"].ToString();
                 DecName = rd["decname"].ToString();
                 Descr = rd["descr"].ToString();
+                text = Descr;
 
                 EditProc = rd["editproc"].ToString();
                 DelProc = rd["delproc"].ToString();
