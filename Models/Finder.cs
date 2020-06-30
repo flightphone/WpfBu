@@ -15,6 +15,10 @@ namespace WpfBu.Models
 {
     public class FinderField : INotifyPropertyChanged
     {
+        private string _Sort = "";
+
+        private string _FindString = "";
+        public Finder Parent { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string FieldName { get; set; }
@@ -22,8 +26,36 @@ namespace WpfBu.Models
         public int Width { get; set; }
         public bool Visible { get; set; }
         public string DisplayFormat { get; set; }
-        public string FindString { get; set; }
-        public string Sort { get; set; }
+        public string FindString { get => _FindString;
+            set {
+                _FindString = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FindString)));
+            } 
+        }
+        public string Sort { 
+            get
+            { 
+                return _Sort; 
+            }
+            set
+            {
+                _Sort = value;
+                if (Parent == null)
+                    return;
+                if (_Sort != "Нет")
+                {
+                    Parent.MaxSortOrder++;
+                    SortOrder = Parent.MaxSortOrder;
+                }
+                else
+                    SortOrder = null;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Sort)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SortOrder)));
+            } 
+        }
+        public int? SortOrder {
+            get; set; 
+        }
     }
 
     public class Finder : RootForm
@@ -45,6 +77,8 @@ namespace WpfBu.Models
         public string OrdField { get; set; }
         public string addFilter { get; set; }
 
+        public int MaxSortOrder { get; set; }
+
         public ObservableCollection<FinderField> Fcols { get; set; }
 
         public FilterList FilterControl { get; set; }
@@ -58,6 +92,16 @@ namespace WpfBu.Models
             };
             fm.FilterBut.Click += (object sender, RoutedEventArgs e) => {
                 userContent.Content = FilterControl;
+            };
+            fm.ClearBut.Click += (object sender, RoutedEventArgs e) => {
+                MaxSortOrder = 0;
+                foreach (var f in Fcols)
+                {
+                    f.FindString = "";
+                    f.Sort = "Нет";
+                }
+                CompilerFilterOrder();
+                SetFilterOrder();
             };
             userMenu.Content = fm;
             /*
@@ -146,6 +190,7 @@ namespace WpfBu.Models
 
         public void CreateColumns(string s)
         {
+            MaxSortOrder = 0;
             Fcols = new ObservableCollection<FinderField>();
             XmlDocument xm = new XmlDocument();
             XmlElement xRoot, xCol;
@@ -181,7 +226,9 @@ namespace WpfBu.Models
                             Width = Width,
                             DisplayFormat = DispFormat,
                             Visible = Vis,
+                            Parent = this,
                             Sort = "Нет"
+                            
                         });
                     }
                 }
@@ -250,32 +297,45 @@ namespace WpfBu.Models
 
         public void CompilerFilterOrder()
         {
-            List<string> fls = new List<string>();
-            List<string> ords = new List<string>();
-            foreach (var f in Fcols)
+            
+            var fls = Fcols.Where(f => !string.IsNullOrEmpty(f.FindString)).Select(f =>
             {
-                if (!string.IsNullOrEmpty(f.FindString))
-                {
-                    fls.Add(" (" + f.FieldName + " like '%" + f.FindString + "%') ");
-                }
+                string s = "";
+                if (f.FindString[0] == '!')
+                    s = " (not " + f.FieldName + " like '%" + f.FindString.Substring(1) + "%') ";
+                else
+                    s = " (" + f.FieldName + " like '%" + f.FindString + "%') ";
+                return s;
+            });
+            
+            var ords = Fcols.Where(f => f.SortOrder > 0).OrderBy(f => f.SortOrder).Select(f =>
+            {
+                string s = "";
                 if (f.Sort == "По возрастанию")
-                {
-                    ords.Add(" " + f.FieldName);
-                }
+                    s = " " + f.FieldName;
                 if (f.Sort == "По убыванию")
-                {
-                    ords.Add(" " + f.FieldName + " desc");
-                }
-                addFilter = string.Join(" and ", fls);
-                OrdField = string.Join(",", ords);
-            }
+                    s = " " + f.FieldName + " desc";
+                return s;
+            });
+
+            
+
+            addFilter = string.Join(" and ", fls);
+            OrdField = string.Join(",", ords);
         }
 
         public void SetFilterOrder()
         {
-            CompilerFilterOrder();
-            MainView.RowFilter = addFilter;
-            MainView.Sort = OrdField;
+            try
+            {
+                CompilerFilterOrder();
+                MainView.RowFilter = addFilter;
+                MainView.Sort = OrdField;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Ошибка фильтрации", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };

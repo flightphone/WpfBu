@@ -56,6 +56,12 @@
                                             EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
                                             Width="*"/>
 
+                <DataGridTextColumn Binding="{Binding SortOrder}"
+                                    ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"
+                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                            IsReadOnly="True"
+                                                    Width="auto" />
+
                 <materialDesign:DataGridComboBoxColumn Header="Сортировка" IsEditable="False"
                                                                Width="150"
                                                                SelectedValueBinding="{Binding Sort}"
