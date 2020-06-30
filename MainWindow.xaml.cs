@@ -35,10 +35,7 @@ namespace WpfBu
             WinListSource = new ObservableCollection<RootForm>();
             InitializeComponent();
             WinList.ItemsSource = WinListSource;
-            //FilterGrid.ItemsSource = dat.Fcols;
-            //dat.Fcols[0].FindString = "aaaa";
-            //dat.Fcols[0].Sort = "По убыванию";
-
+            
             /*
             treeItem it = new treeItem("")
             {
@@ -105,40 +102,6 @@ namespace WpfBu
             else
             {
                 res = Create(it);
-                /*
-                res = new RootForm
-                {
-                    userMenu = new TextBlock() { 
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    FontSize = 22,
-                    Text = "Не реализовано"
-                    },
-                    
-                    new Button
-                    {
-                        Style = (Style)Resources["MaterialDesignFloatingActionMiniAccentButton"],
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        ToolTip = "Добавить",
-                        Margin = new Thickness() { Left = 8 },
-                        Content = new PackIcon()
-                        {
-                            Kind= PackIconKind.Plus,
-                            Height = 24,
-                            Width = 24
-                        }
-                    },
-                    
-                    userContent = new TextBox
-                    {
-                        TextWrapping = TextWrapping.Wrap,
-                        AcceptsReturn = true,
-                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    }
-                    
-                };
-                */
-                //HintAssist.SetHint((DependencyObject)res.userContent, "Введите текст");
                 if (res != null)
                 {
                     formList.Add(it.id, res);

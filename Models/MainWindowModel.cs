@@ -49,69 +49,9 @@ namespace WpfBu.Models
 
         private DataTable menuTab { get; set; }
 
-        /*
-        private void createImage()
-        {
-            if (!Directory.Exists("images"))
-                Directory.CreateDirectory("images");
-
-            var sql = "select idimage, image_bmp from t_sysmenuimage";
-            var data = new DataTable();
-            var da = new SqlDataAdapter(sql, MainObj.ConnectionString);
-            da.Fill(data);
-            for (int i = 0; i < data.Rows.Count; i++)
-            {
-                string fname = "images/i" + data.Rows[i]["idimage"].ToString() + ".png";
-                string s = data.Rows[i]["image_bmp"].ToString();
-                byte[] buf = Convert.FromBase64String(s);
-                MemoryStream mstr = new MemoryStream(buf);
-                Bitmap bmp = new Bitmap(mstr);
-                bmp.Save(fname, System.Drawing.Imaging.ImageFormat.Png);
-            }
-        }
-        */
-        //Для теста
-        public List<FinderField> Fcols { get; set; }
         public MainWindowModel()
         {
-            //createImage();
-            //для теста
-            Fcols = new List<FinderField>
-            {
-                new FinderField()
-                {
-                    FieldCaption = "Номер_ВС",
-                    Sort = "Нет"
-                },
-                new FinderField()
-                {
-                    FieldCaption = "Тип ВС",
-                    Sort = "Нет"
-                },
-                new FinderField()
-                {
-                    FieldCaption = "Авиакомпания",
-                    Sort = "Нет"
-                },
-                new FinderField()
-                {
-                    FieldCaption = "Синоним",
-                    Sort = "Нет"
-                },
-                new FinderField()
-                {
-                    FieldCaption = "Весовая категория",
-                    Sort = "Нет"
-                },
-                new FinderField()
-                {
-                    FieldCaption = "Масса",
-                    Sort = "Нет"
-                }
-
-
-            };
-
+            
             MainObj.IsPostgres = false;
             string sql;
             if (MainObj.IsPostgres)
@@ -161,12 +101,6 @@ namespace WpfBu.Models
                         ilist.id = (k == bi.Length - 1) ? mi["idmenu"].ToString() : mi["idmenu"].ToString() + "_node";
                         ilist.attributes = new Dictionary<string, string>() { { "link1", mi["link1"].ToString() }, { "params", mi["params"].ToString() } };
                         
-                        /*
-                        if ((int)mi["idimage"] > 0)
-                            ilist.iconCls = "images/i" + mi["idimage"].ToString() + ".png";
-                        else
-                            ilist.iconCls = "images/i0.png";
-                        */
                         if (string.IsNullOrEmpty(ItemIcon))
                             ilist.Kind = PackIconKind.Paper;
                         else

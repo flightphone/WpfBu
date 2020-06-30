@@ -28,7 +28,7 @@
                     Отмена
                 </Button>
                 <Button Style="{StaticResource MaterialDesignRaisedLightButton}" Width="100"
-                         DockPanel.Dock="Right" Margin="8 0 0 0">
+                         DockPanel.Dock="Right" Margin="8 0 0 0" x:Name="OkBut">
                     ОК
                 </Button>
 

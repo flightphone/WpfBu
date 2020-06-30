@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace WpfBu.Models
 {
@@ -27,7 +28,9 @@ namespace WpfBu.Models
 
     public class Finder : RootForm
     {
-        public DataGrid MainGrid;
+        public DataGrid MainGrid { get; set; }
+
+        public DataView MainView { get; set; }
 
         public string SQLText { get; set; }
         public string DecName { get; set; }
@@ -38,6 +41,9 @@ namespace WpfBu.Models
 
         public string SumFields { get; set; }
         public int FROZENCOLS { get; set; }
+
+        public string OrdField { get; set; }
+        public string addFilter { get; set; }
 
         public ObservableCollection<FinderField> Fcols { get; set; }
 
@@ -50,14 +56,28 @@ namespace WpfBu.Models
             {
                 DataContext = this
             };
-            fm.FilterBut.Click += FilterBut_Click;
+            fm.FilterBut.Click += (object sender, RoutedEventArgs e) => {
+                userContent.Content = FilterControl;
+            };
             userMenu.Content = fm;
+            /*
+             *     new Button
+                    {
+                        Style = (Style)Resources["MaterialDesignFloatingActionMiniAccentButton"],
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        ToolTip = "Добавить",
+                        Margin = new Thickness() { Left = 8 },
+                        Content = new PackIcon()
+                        {
+                            Kind= PackIconKind.Plus,
+                            Height = 24,
+                            Width = 24
+                        }
+                    },
+             */
+
         }
 
-        private void FilterBut_Click(object sender, RoutedEventArgs e)
-        {
-            userContent.Content = FilterControl;
-        }
 
         public virtual void CreateContent()
         {
@@ -73,14 +93,19 @@ namespace WpfBu.Models
             {
                 DataContext = this
             };
-            FilterControl.CancelBut.Click += CancelBut_Click;
+            FilterControl.CancelBut.Click += (object sender, RoutedEventArgs e)=>
+                {
+                    userContent.Content = MainGrid;
+                };
+            FilterControl.OkBut.Click += (object sender, RoutedEventArgs e) =>
+            {
+                SetFilterOrder();
+                userContent.Content = MainGrid;
+            };
+            
         }
 
-        private void CancelBut_Click(object sender, RoutedEventArgs e)
-        {
-            userContent.Content = MainGrid;
-        }
-
+        
         public override void start(object o)
         {
             try
@@ -192,7 +217,7 @@ namespace WpfBu.Models
 
         private void MainGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            //throw new NotImplementedException();
+            
             DataRowView item = e.Row.Item as DataRowView;
             if (item != null)
             {
@@ -209,7 +234,7 @@ namespace WpfBu.Models
                 {
                     System.Drawing.Color dc = System.Drawing.Color.FromArgb(c);
                     e.Row.Background = new SolidColorBrush(Color.FromRgb(dc.R, dc.G, dc.B));
-                    //e.Row.Foreground = new SolidColorBrush(Color.FromRgb((byte)0, (byte)0, (byte)0));
+                    
                 }    
             }
         }
@@ -219,7 +244,38 @@ namespace WpfBu.Models
             string PrepareSQL = SQLText;
             PrepareSQL = PrepareSQL.Replace("[Account]", MainObj.Account);
             DataTable data = MainObj.Dbutil.Runsql(PrepareSQL);
-            MainGrid.ItemsSource = data.DefaultView;
+            MainView = data.DefaultView;
+            MainGrid.ItemsSource = MainView;
+        }
+
+        public void CompilerFilterOrder()
+        {
+            List<string> fls = new List<string>();
+            List<string> ords = new List<string>();
+            foreach (var f in Fcols)
+            {
+                if (!string.IsNullOrEmpty(f.FindString))
+                {
+                    fls.Add(" (" + f.FieldName + " like '%" + f.FindString + "%') ");
+                }
+                if (f.Sort == "По возрастанию")
+                {
+                    ords.Add(" " + f.FieldName);
+                }
+                if (f.Sort == "По убыванию")
+                {
+                    ords.Add(" " + f.FieldName + " desc");
+                }
+                addFilter = string.Join(" and ", fls);
+                OrdField = string.Join(",", ords);
+            }
+        }
+
+        public void SetFilterOrder()
+        {
+            CompilerFilterOrder();
+            MainView.RowFilter = addFilter;
+            MainView.Sort = OrdField;
         }
 
         public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
