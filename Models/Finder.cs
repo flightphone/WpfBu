@@ -7,12 +7,15 @@ using System.Windows.Controls;
 using System.Xml;
 using System.Windows.Data;
 using System.Windows.Media;
-
+using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace WpfBu.Models
 {
-    public class FinderField
+    public class FinderField : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public string FieldName { get; set; }
         public string FieldCaption { get; set; }
         public int Width { get; set; }
@@ -36,8 +39,47 @@ namespace WpfBu.Models
         public string SumFields { get; set; }
         public int FROZENCOLS { get; set; }
 
-        public List<FinderField> Fcols { get; set; }
+        public ObservableCollection<FinderField> Fcols { get; set; }
 
+        public FilterList FilterControl { get; set; }
+
+        public virtual void CreateMenu()
+        {
+            userMenu = new ContentControl();
+            FinderMenu fm = new FinderMenu()
+            {
+                DataContext = this
+            };
+            fm.FilterBut.Click += FilterBut_Click;
+            userMenu.Content = fm;
+        }
+
+        private void FilterBut_Click(object sender, RoutedEventArgs e)
+        {
+            userContent.Content = FilterControl;
+        }
+
+        public virtual void CreateContent()
+        {
+            userContent = new ContentControl
+            {
+                Content = MainGrid
+            };
+        }
+
+        public void CreateFilter()
+        {
+            FilterControl = new FilterList()
+            {
+                DataContext = this
+            };
+            FilterControl.CancelBut.Click += CancelBut_Click;
+        }
+
+        private void CancelBut_Click(object sender, RoutedEventArgs e)
+        {
+            userContent.Content = MainGrid;
+        }
 
         public override void start(object o)
         {
@@ -65,13 +107,10 @@ namespace WpfBu.Models
                 CreateColumns(paramvalue);
                 UpdateTab();
 
-                userMenu = new TextBlock()
-                {
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    FontSize = 22,
-                    Text = Descr
-                };
+                CreateMenu();
+                CreateFilter();
+                CreateContent();
+
             }
             catch (Exception e)
             {
@@ -82,7 +121,7 @@ namespace WpfBu.Models
 
         public void CreateColumns(string s)
         {
-            Fcols = new List<FinderField>();
+            Fcols = new ObservableCollection<FinderField>();
             XmlDocument xm = new XmlDocument();
             XmlElement xRoot, xCol;
             xm.LoadXml(s);
@@ -148,7 +187,7 @@ namespace WpfBu.Models
                     });
                 }
             }
-            this.userContent = MainGrid;
+            
         }
 
         private void MainGrid_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -182,5 +221,7 @@ namespace WpfBu.Models
             DataTable data = MainObj.Dbutil.Runsql(PrepareSQL);
             MainGrid.ItemsSource = data.DefaultView;
         }
+
+        public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
     }
 }

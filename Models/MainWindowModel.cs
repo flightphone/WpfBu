@@ -213,7 +213,7 @@ namespace WpfBu.Models
             }
         }
 
-        public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
+        
 
     }
 }

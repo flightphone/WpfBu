@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Controls;
 
 namespace WpfBu.Models
 {
@@ -8,8 +9,8 @@ namespace WpfBu.Models
     {
         public string id { get; set; }
         public string text { get; set; }
-        public object userMenu { get; set; }
-        public object userContent { get; set; }
+        public ContentControl userMenu { get; set; }
+        public ContentControl userContent { get; set; }
         public virtual void start(object o)
         { 
         }

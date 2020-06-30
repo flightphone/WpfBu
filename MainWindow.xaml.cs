@@ -24,8 +24,9 @@ namespace WpfBu
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Dictionary<string, RootForm> formList { get; set; }
-        private ObservableCollection<RootForm> WinListSource { get; set; }
+        public string CurrentId { get; set; }
+        public Dictionary<string, RootForm> formList { get; set; }
+        public ObservableCollection<RootForm> WinListSource { get; set; }
         public MainWindow()
         {
             var dat = new MainWindowModel();
@@ -37,7 +38,7 @@ namespace WpfBu
             //FilterGrid.ItemsSource = dat.Fcols;
             //dat.Fcols[0].FindString = "aaaa";
             //dat.Fcols[0].Sort = "По убыванию";
-            
+
             /*
             treeItem it = new treeItem("")
             {
@@ -49,6 +50,7 @@ namespace WpfBu
             {
                 userMenu.Content = fm.userMenu;
                 userContent.Content = fm.userContent;
+                CurrentId = fm.id;
                 MenuToggleButton.IsChecked = false;
             }
             */
@@ -69,6 +71,7 @@ namespace WpfBu
                 {
                     userMenu.Content = fm.userMenu;
                     userContent.Content = fm.userContent;
+                    CurrentId = fm.id;
                     MenuToggleButton.IsChecked = false;
                 }
                 else
@@ -145,6 +148,28 @@ namespace WpfBu
             return res;
         }
 
-        
+        private void RemoveList_Click(object sender, RoutedEventArgs e)
+        {
+            string id = ((Button)sender).Tag.ToString();
+            RootForm fm = formList[id];
+            WinListSource.Remove(fm);
+            formList.Remove(id);
+            if (id == CurrentId)
+            {
+                userMenu.Content = null;
+                userContent.Content = null;
+            }
+            userContent.Focus();
+        }
+
+        private void FocusList_Click(object sender, RoutedEventArgs e)
+        {
+            string id = ((Button)sender).Tag.ToString();
+            RootForm fm = formList[id];
+            userMenu.Content = fm.userMenu;
+            userContent.Content = fm.userContent;
+            CurrentId = fm.id;
+            userContent.Focus();
+        }
     }
 }

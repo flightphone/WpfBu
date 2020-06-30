@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="WpfBu.FilterList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfBu"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <materialDesignConverters:BooleanToVisibilityConverter x:Key="InvertedBooleanToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <DockPanel>
+        <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                                          Mode="Accent" DockPanel.Dock="Top">
+            <DockPanel>
+                <Button Style="{StaticResource MaterialDesignRaisedLightButton}" Width="100"
+                         DockPanel.Dock="Right" Margin="8 0 0 0"
+                        x:Name="CancelBut">
+                    Отмена
+                </Button>
+                <Button Style="{StaticResource MaterialDesignRaisedLightButton}" Width="100"
+                         DockPanel.Dock="Right" Margin="8 0 0 0">
+                    ОК
+                </Button>
+
+
+
+                <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка и сортировка</TextBlock>
+            </DockPanel>
+        </materialDesign:ColorZone>
+        <DataGrid CanUserAddRows="False" 
+                           AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None"
+                                  ItemsSource="{Binding Fcols}"
+                                  >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding FieldCaption}"
+                                            Header="Поле"
+                                            ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"
+                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                            IsReadOnly="True"
+                                                    Width="auto"
+                                                    />
+
+                <DataGridTextColumn Binding="{Binding FindString}"
+                                            Header="Строка поиска"
+                                            ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}"
+                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" 
+                                            Width="*"/>
+
+                <materialDesign:DataGridComboBoxColumn Header="Сортировка" IsEditable="False"
+                                                               Width="150"
+                                                               SelectedValueBinding="{Binding Sort}"
+                                                               ItemsSourceBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path= DataContext.Foods}"
+                                                                       
+                                                                       >
+
+                </materialDesign:DataGridComboBoxColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+    </DockPanel>
+</UserControl>
