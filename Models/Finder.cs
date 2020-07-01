@@ -10,6 +10,9 @@ using System.Windows.Media;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MaterialDesignThemes;
+using MaterialDesignThemes.Wpf;
+
 
 namespace WpfBu.Models
 {
@@ -60,6 +63,9 @@ namespace WpfBu.Models
 
     public class Finder : RootForm
     {
+
+        
+
         public DataGrid MainGrid { get; set; }
 
         public DataView MainView { get; set; }
@@ -71,6 +77,9 @@ namespace WpfBu.Models
         public string EditProc { get; set; }
         public string DelProc { get; set; }
 
+        public string KeyF { get; set; }
+        public string DispField { get; set; }
+        public string KeyValue { get; set; }
         public string SumFields { get; set; }
         public int FROZENCOLS { get; set; }
 
@@ -83,6 +92,10 @@ namespace WpfBu.Models
 
         public FilterList FilterControl { get; set; }
 
+        public Dictionary<string, string> TextParams { get; set; }
+
+        public Dictionary<string, object> SQLParams { get; set; }
+
         public virtual void CreateMenu()
         {
             userMenu = new ContentControl();
@@ -90,6 +103,71 @@ namespace WpfBu.Models
             {
                 DataContext = this
             };
+
+            if (!string.IsNullOrEmpty(KeyValue))
+            {
+                Button bt = new Button
+                {
+                    Style = (Style)Parent.Resources["MaterialDesignFloatingActionMiniAccentButton"],
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    ToolTip = "Детали",
+                    Margin = new Thickness() { Right = 8 },
+                    Content = new PackIcon()
+                    {
+                        Kind = PackIconKind.Details,
+                        Height = 24,
+                        Width = 24,
+                        Foreground = Brushes.MediumBlue
+                    },
+
+                };
+
+                bt.Click += (object sender, RoutedEventArgs e) =>
+                {
+
+                    
+
+                    if (MainGrid.SelectedItem == null)
+                    {
+                        MessageBox.Show("Выберете запись", "Детали");
+                        return;
+                    }
+                    DataRow rw = ((DataRowView)MainGrid.SelectedItem).Row;
+                    
+
+                    Finder res;
+                    string idchiled = this.id + "_" + rw[KeyF].ToString();
+
+                    if (Parent.formList.ContainsKey(idchiled))
+                    {
+                        res = (Finder)Parent.formList[idchiled];
+                    }
+                    else
+                    {
+                        res = new Finder
+                        {
+                            id = idchiled,
+                            Parent = this.Parent
+                        };
+                        res.TextParams = new Dictionary<string, string>() { { KeyF, rw[KeyF].ToString() } };
+                        res.start(KeyValue);
+                        res.Descr = res.Descr + " (" + rw[DispField].ToString() + ")";
+                        res.text = res.Descr;
+                        Parent.formList.Add(idchiled, res);
+                        Parent.WinListSource.Add(res);
+                    }
+
+                    Parent.userMenu.Content = res.userMenu;
+                    Parent.userContent.Content = res.userContent;
+                    Parent.CurrentId = idchiled;
+
+                };
+
+                fm.ButPanel.Children.Add(
+                    bt
+                    );
+            }
+
             fm.FilterBut.Click += (object sender, RoutedEventArgs e) => {
                 userContent.Content = FilterControl;
             };
@@ -104,21 +182,7 @@ namespace WpfBu.Models
                 SetFilterOrder();
             };
             userMenu.Content = fm;
-            /*
-             *     new Button
-                    {
-                        Style = (Style)Resources["MaterialDesignFloatingActionMiniAccentButton"],
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        ToolTip = "Добавить",
-                        Margin = new Thickness() { Left = 8 },
-                        Content = new PackIcon()
-                        {
-                            Kind= PackIconKind.Plus,
-                            Height = 24,
-                            Width = 24
-                        }
-                    },
-             */
+            
 
         }
 
@@ -172,6 +236,9 @@ namespace WpfBu.Models
                 EditProc = rd["editproc"].ToString();
                 DelProc = rd["delproc"].ToString();
 
+                KeyF = rd["KeyField"].ToString();
+                DispField = rd["DispField"].ToString();
+                KeyValue = rd["KeyValue"].ToString();
 
                 CreateColumns(paramvalue);
                 UpdateTab();
@@ -251,7 +318,7 @@ namespace WpfBu.Models
                 {
                     Binding bn = new Binding(f.FieldName);
                     bn.StringFormat = f.DisplayFormat;
-                    MainGrid.Columns.Add(new DataGridTextColumn()
+                    MainGrid.Columns.Add(new System.Windows.Controls.DataGridTextColumn()
                     {
                         Header = f.FieldCaption,
                         Binding = bn,
@@ -290,9 +357,17 @@ namespace WpfBu.Models
         {
             string PrepareSQL = SQLText;
             PrepareSQL = PrepareSQL.Replace("[Account]", MainObj.Account);
+            if (TextParams!=null)
+            foreach (string k in TextParams.Keys)
+            {
+                PrepareSQL = PrepareSQL.Replace("[" + k + "]", TextParams[k]);
+            }
+
+
             DataTable data = MainObj.Dbutil.Runsql(PrepareSQL);
             MainView = data.DefaultView;
             MainGrid.ItemsSource = MainView;
+            
         }
 
         public void CompilerFilterOrder()

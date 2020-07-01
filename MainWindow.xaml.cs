@@ -35,7 +35,6 @@ namespace WpfBu
             WinListSource = new ObservableCollection<RootForm>();
             InitializeComponent();
             WinList.ItemsSource = WinListSource;
-            
             /*
             treeItem it = new treeItem("")
             {
@@ -85,8 +84,6 @@ namespace WpfBu
             if (!string.IsNullOrEmpty(it.attributes["params"]))
             {
                 res = new Finder();
-                res.id = it.id;
-                res.start(it.attributes["params"]);
             }
             return res;
         }
@@ -104,6 +101,9 @@ namespace WpfBu
                 res = Create(it);
                 if (res != null)
                 {
+                    res.id = it.id;
+                    res.Parent = this;
+                    res.start(it.attributes["params"]);
                     formList.Add(it.id, res);
                     WinListSource.Add(res);
                 }

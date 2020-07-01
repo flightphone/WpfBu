@@ -20,7 +20,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" x:Name="ButPanel">
             <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                             HorizontalAlignment="Left"
                             Margin="8 0 8 0"

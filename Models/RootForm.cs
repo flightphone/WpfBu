@@ -7,6 +7,7 @@ namespace WpfBu.Models
 {
     public class RootForm
     {
+        public MainWindow Parent { get; set; }
         public string id { get; set; }
         public string text { get; set; }
         public ContentControl userMenu { get; set; }
