@@ -34,8 +34,46 @@
 
 
 
-                <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка и сортировка</TextBlock>
+                <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка, сортировка, страницы, итоги</TextBlock>
             </DockPanel>
+        </materialDesign:ColorZone>
+        <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                                          Mode="Light" Background="Yellow" DockPanel.Dock="Top">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" >
+                         <materialDesign:PackIcon Kind="SkipPreviousCircle" Height="32" Width="32" Foreground="MediumBlue" />
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" >
+                        <materialDesign:PackIcon Kind="ArrowLeftDropCircle" Height="32" Width="32" Foreground="MediumBlue" />
+                    </Button>
+                    <TextBlock VerticalAlignment="Center" FontSize="14" Margin="5 0 0 0">Страница</TextBlock>
+                    <TextBox Width="auto" Text="{Binding page}" Margin="5 0 0 0" FontSize="14" Padding="1" x:Name="page"/>
+                    <TextBlock VerticalAlignment="Center" FontSize="14" Margin="5 0 0 0">из</TextBlock>
+                    <TextBlock VerticalAlignment="Center" FontSize="14" Margin="5 0 0 0" x:Name="MaxPage" Text="{Binding MaxPage}"></TextBlock>
+                    <Button Style="{StaticResource MaterialDesignIconButton}" Margin="5 0 0 0"
+                                                 Height="32" Width="32" >
+                        <materialDesign:PackIcon Kind="ArrowRightDropCircle" Height="32" Width="32" Foreground="MediumBlue" />
+                    </Button>
+
+                    
+                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" >
+                        <materialDesign:PackIcon Kind="SkipNextCircle" Height="32" Width="32" Foreground="MediumBlue" />
+                    </Button>
+
+                    <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Обновить" x:Name="ButUpdate"
+                                                 Height="32" Width="32" >
+                        <materialDesign:PackIcon Kind="RefreshCircle" Height="32" Width="32" Foreground="MediumBlue" />
+                    </Button>
+
+                </StackPanel>
+                <TextBlock VerticalAlignment="Center" FontSize="14" DockPanel.Dock="Right" x:Name="TotalString" Text="{Binding TotalString}"/>
+                <TextBlock></TextBlock>
+            </DockPanel>
+
         </materialDesign:ColorZone>
         <DataGrid CanUserAddRows="False" 
                            AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None"

@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:WpfBu"
         mc:Ignorable="d"
         xmlns:domain="clr-namespace:WpfBu.Models"
-        Title="uSmart 3.0" Height="450" Width="800" WindowState="Maximized"
+        Title="WPF Example" Height="450" Width="800" WindowState="Maximized"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -28,7 +28,7 @@
     <materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
         <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.LeftDrawerContent>
-                <DockPanel MinWidth="220">
+                <DockPanel MinWidth="220" >
                     <ToggleButton 
                         Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
                         DockPanel.Dock="Top"
@@ -53,7 +53,7 @@
                     <TreeView x:Name="mainTree"
                      ItemsSource="{Binding MovieCategories}"
                      SelectedItemChanged="mainTree_SelectedItemChanged"
-                     
+                     Panel.ZIndex="1000"
                               >
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Path=children}">

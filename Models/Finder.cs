@@ -70,6 +70,8 @@ namespace WpfBu.Models
 
         public DataView MainView { get; set; }
 
+        public DataTable TotalTable { get; set; }
+
         public string SQLText { get; set; }
         public string DecName { get; set; }
         public string Descr { get; set; }
@@ -95,6 +97,26 @@ namespace WpfBu.Models
         public Dictionary<string, string> TextParams { get; set; }
 
         public Dictionary<string, object> SQLParams { get; set; }
+
+        public bool pagination { get; set; }
+
+        public int nrows { get; set; }
+
+        private int _page = 1;
+        public int page { get => _page;
+        set
+            {
+                _page = value;
+            }
+        }
+
+        public string TotalString { get; set; }
+
+        public Int64 MaxPage { get; set; }
+        public virtual void AddInit(FinderMenu fm, Finder form)
+        { 
+        
+        }
 
         public virtual void CreateMenu()
         {
@@ -181,6 +203,7 @@ namespace WpfBu.Models
                 CompilerFilterOrder();
                 SetFilterOrder();
             };
+            AddInit(fm, this);
             userMenu.Content = fm;
             
 
@@ -210,6 +233,8 @@ namespace WpfBu.Models
                 SetFilterOrder();
                 userContent.Content = MainGrid;
             };
+
+            FilterControl.ButUpdate.Click += ButUpdate_Click;
             
         }
 
@@ -236,9 +261,12 @@ namespace WpfBu.Models
                 EditProc = rd["editproc"].ToString();
                 DelProc = rd["delproc"].ToString();
 
-                KeyF = rd["KeyField"].ToString();
-                DispField = rd["DispField"].ToString();
-                KeyValue = rd["KeyValue"].ToString();
+                KeyF = rd["keyfield"].ToString();
+                DispField = rd["dispfield"].ToString();
+                KeyValue = rd["keyvalue"].ToString();
+
+                nrows = (int)rd["dectype"];
+                pagination = (nrows >= 30);
 
                 CreateColumns(paramvalue);
                 UpdateTab();
@@ -353,6 +381,31 @@ namespace WpfBu.Models
             }
         }
 
+        public virtual void UpdateTotal()
+        {
+            string res = "";
+            if (!pagination)
+                res = "число записей: " + MainView.Count.ToString();
+            else
+            {
+                Int64 total = 0;
+                if (MainObj.IsPostgres)
+                    total = (Int64)TotalTable.Rows[0]["n_total"];
+                else
+                    total = (Int32)TotalTable.Rows[0]["n_total"];
+
+                res = string.Format("просмотр {0} до {1} из {2} записей", (page - 1) * nrows + 1, ((page * nrows) < total)? (page * nrows):total, total);
+            }
+            TotalString = res;
+            if (FilterControl != null)
+            {
+                FilterControl.TotalString.Text = TotalString;
+                FilterControl.page.Text = page.ToString();
+                FilterControl.MaxPage.Text = MaxPage.ToString();
+            }
+
+        }
+
         public virtual void UpdateTab()
         {
             string PrepareSQL = SQLText;
@@ -362,12 +415,106 @@ namespace WpfBu.Models
             {
                 PrepareSQL = PrepareSQL.Replace("[" + k + "]", TextParams[k]);
             }
+            
 
+            var sqltotal = PrepareSQL;
+            string sql = PrepareSQL;
+            CompilerFilterOrder();
+            string decSQL = sql;
+            var localOrdField = "";
+            var n = sql.ToLowerInvariant().IndexOf("order by");
+            if (n != -1)
+                {
+                    decSQL = sql.Substring(0, n);
+                    localOrdField = sql.Substring(n + 8);
+                }
+            if (string.IsNullOrEmpty(OrdField))
+                    OrdField = localOrdField;
+            if (!string.IsNullOrEmpty(addFilter))
+                {
+                    if (decSQL.ToLowerInvariant().IndexOf(" where ") == -1 && decSQL.ToLowerInvariant().IndexOf(" where\n") == -1 && decSQL.ToLowerInvariant().IndexOf("\nwhere\n") == -1 && decSQL.ToLowerInvariant().IndexOf("\nwhere ") == -1)
+                        decSQL += " where ";
+                    else
+                        decSQL += " and ";
 
-            DataTable data = MainObj.Dbutil.Runsql(PrepareSQL);
+                    decSQL += addFilter;
+                }
+
+            sqltotal = decSQL;
+            var sqlpag = decSQL;
+            if (!string.IsNullOrEmpty(OrdField))
+                decSQL = decSQL + " order by " + OrdField;
+            sql = decSQL;
+
+            /*
+                Итоги
+            */
+            
+            string[] sums = new string[0];
+            if (!string.IsNullOrEmpty(SumFields))
+            {
+                var sql1 = sqltotal;
+                sums = SumFields.ToLowerInvariant().Split(",");
+                sqltotal = "select count(*) n_total";
+                for (var i = 0; i < sums.Length; i++)
+                    sqltotal = sqltotal + ", sum(" + sums[i] + ") " + sums[i];
+                sqltotal = sqltotal + "  from (" + sql1 + ") a";
+            }
+            else
+            {
+                sqltotal = "select count(*) n_total from (" + sqltotal + ") a";
+            }
+
+            if (pagination)
+            {
+                TotalTable = MainObj.Dbutil.Runsql(sqltotal);
+                Int64 total = 0;
+                if (MainObj.IsPostgres)
+                    total = (Int64)TotalTable.Rows[0]["n_total"];
+                else
+                    total = (Int32)TotalTable.Rows[0]["n_total"];
+                MaxPage = total / nrows;
+
+                if ((total % nrows) !=0)
+                    MaxPage += 1;
+                if (page > MaxPage)
+                    _page = (int)MaxPage;
+
+            }
+            else
+            {
+                MaxPage = 1;
+                _page = 1;
+            }
+
+            if (MainObj.IsPostgres)
+                    sql = sql + " limit " + nrows.ToString() + " offset " + ((page - 1) * nrows).ToString();
+            else
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("WITH tmpWebFind AS (");
+                    sb.AppendLine(" SELECT TMPA.*, ");
+                    sb.AppendLine(string.Format(" ROW_NUMBER() OVER (ORDER BY {0}) AS IDTMPNUM", OrdField));
+                    sb.AppendLine(string.Format(" FROM ({0}) TMPA ", sqlpag));
+                    sb.AppendLine(") ");
+                    sb.AppendLine(" SELECT * FROM tmpWebFind A ");
+                    sb.AppendLine(string.Format(" WHERE IDTMPNUM BETWEEN {0} AND {1}", (page - 1) * nrows + 1, page * nrows));
+                    sb.AppendLine(" ORDER BY IDTMPNUM");
+                    sql = sb.ToString();
+                }
+            
+
+            
+            
+            DataTable data;
+            if (pagination)
+                 data = MainObj.Dbutil.Runsql(sql);
+            else
+                 data = MainObj.Dbutil.Runsql(PrepareSQL);
+            
             MainView = data.DefaultView;
             MainGrid.ItemsSource = MainView;
-            
+            UpdateTotal();
         }
 
         public void CompilerFilterOrder()
@@ -403,9 +550,17 @@ namespace WpfBu.Models
         {
             try
             {
-                CompilerFilterOrder();
-                MainView.RowFilter = addFilter;
-                MainView.Sort = OrdField;
+                if (!pagination)
+                {
+                    CompilerFilterOrder();
+                    MainView.RowFilter = addFilter;
+                    MainView.Sort = OrdField;
+                    UpdateTotal();
+                }
+                else
+                {
+                    UpdateTab();
+                }
             }
             catch (Exception e)
             {
@@ -414,5 +569,11 @@ namespace WpfBu.Models
         }
 
         public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
+
+        public void ButUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            //MessageBox.Show("Update");
+            UpdateTab();
+        }
     }
 }

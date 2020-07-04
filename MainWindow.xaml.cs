@@ -81,9 +81,16 @@ namespace WpfBu
         private RootForm Create(treeItem it)
         {
             RootForm res = null;
+            if (it.attributes["link1"] == "RegulationPrint.Dgs.DogovorList")
+            {
+                res = new Docs();
+                return res;
+            }
+
             if (!string.IsNullOrEmpty(it.attributes["params"]))
             {
                 res = new Finder();
+                return res;
             }
             return res;
         }
