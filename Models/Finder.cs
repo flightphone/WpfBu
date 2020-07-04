@@ -234,11 +234,40 @@ namespace WpfBu.Models
                 userContent.Content = MainGrid;
             };
 
-            FilterControl.ButUpdate.Click += ButUpdate_Click;
-            
+            FilterControl.ButUpdate.Click += (object sender, RoutedEventArgs e) =>
+            {
+                UpdateTab();
+            };
+
+            FilterControl.ButLeft.Click += (object sender, RoutedEventArgs e) =>
+            {
+                if (_page > 1)
+                    _page--;
+                UpdateTab();
+            };
+
+            FilterControl.ButFirst.Click += (object sender, RoutedEventArgs e) =>
+            {
+                _page = 1;
+                UpdateTab();
+            };
+
+
+            FilterControl.ButRight.Click += (object sender, RoutedEventArgs e) =>
+            {
+                _page++;
+                UpdateTab();
+            };
+
+            FilterControl.ButLast.Click += (object sender, RoutedEventArgs e) =>
+            {
+                _page = (int)MaxPage;
+                UpdateTab();
+            };
+
         }
 
-        
+
         public override void start(object o)
         {
             try
@@ -408,6 +437,8 @@ namespace WpfBu.Models
 
         public virtual void UpdateTab()
         {
+            if (userContent!=null)
+                userContent.Content = MainGrid;
             string PrepareSQL = SQLText;
             PrepareSQL = PrepareSQL.Replace("[Account]", MainObj.Account);
             if (TextParams!=null)
@@ -570,10 +601,6 @@ namespace WpfBu.Models
 
         public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
 
-        public void ButUpdate_Click(object sender, RoutedEventArgs e)
-        {
-            //MessageBox.Show("Update");
-            UpdateTab();
-        }
+        
     }
 }
