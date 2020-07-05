@@ -41,15 +41,17 @@ namespace WpfBu.Models
             if (MainObj.IsPostgres)
             {
                 var da = new NpgsqlDataAdapter(sql, MainObj.ConnectionString);
-                foreach (string s in par.Keys)
-                    da.SelectCommand.Parameters.AddWithValue(s, par[s]);
+                if (par != null)
+                    foreach (string s in par.Keys)
+                        da.SelectCommand.Parameters.AddWithValue(s, par[s]);
                 da.Fill(data);
             }
             else
             {
                 var da = new SqlDataAdapter(sql, MainObj.ConnectionString);
-                foreach (string s in par.Keys)
-                    da.SelectCommand.Parameters.AddWithValue(s, par[s]);
+                if (par != null)
+                    foreach (string s in par.Keys)
+                        da.SelectCommand.Parameters.AddWithValue(s, par[s]);
                 da.Fill(data);
             }
             return data;

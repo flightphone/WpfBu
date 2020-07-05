@@ -87,6 +87,19 @@ namespace WpfBu
                 return res;
             }
 
+            if (it.attributes["link1"] == "RegulationPrint.Refer.referExtTarif")
+            {
+                res = new Tariffs();
+                return res;
+            }
+
+
+            if (it.attributes["link1"] == "RegulationPrint.FlightCardsList")
+            {
+                res = new Flights();
+                return res;
+            }
+
             if (!string.IsNullOrEmpty(it.attributes["params"]))
             {
                 res = new Finder();

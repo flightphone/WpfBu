@@ -282,7 +282,8 @@ namespace WpfBu.Models
                 DataTable t_rp = MainObj.Dbutil.Runsql(sql);
                 DataRow rd = t_rp.Rows[0];
                 string paramvalue = rd["paramvalue"].ToString();
-                SQLText = rd["decsql"].ToString();
+                if (string.IsNullOrEmpty(SQLText))
+                    SQLText = rd["decsql"].ToString();
                 DecName = rd["decname"].ToString();
                 Descr = rd["descr"].ToString();
                 text = Descr;
@@ -498,7 +499,7 @@ namespace WpfBu.Models
 
             if (pagination)
             {
-                TotalTable = MainObj.Dbutil.Runsql(sqltotal);
+                TotalTable = MainObj.Dbutil.Runsql(sqltotal, SQLParams);
                 Int64 total = 0;
                 if (MainObj.IsPostgres)
                     total = (Int64)TotalTable.Rows[0]["n_total"];
@@ -539,9 +540,9 @@ namespace WpfBu.Models
             
             DataTable data;
             if (pagination)
-                 data = MainObj.Dbutil.Runsql(sql);
+                 data = MainObj.Dbutil.Runsql(sql, SQLParams);
             else
-                 data = MainObj.Dbutil.Runsql(PrepareSQL);
+                 data = MainObj.Dbutil.Runsql(PrepareSQL, SQLParams);
             
             MainView = data.DefaultView;
             MainGrid.ItemsSource = MainView;
