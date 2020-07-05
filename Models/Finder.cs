@@ -93,6 +93,7 @@ namespace WpfBu.Models
         public ObservableCollection<FinderField> Fcols { get; set; }
 
         public FilterList FilterControl { get; set; }
+        public FinderMenu MenuControl { get; set; }
 
         public Dictionary<string, string> TextParams { get; set; }
 
@@ -125,6 +126,45 @@ namespace WpfBu.Models
             {
                 DataContext = this
             };
+            if (pagination)
+            {
+
+
+                fm.ButUpdate.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    UpdateTab();
+                };
+
+                fm.ButLeft.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    if (_page > 1)
+                        _page--;
+                    UpdateTab();
+                };
+
+                fm.ButFirst.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    _page = 1;
+                    UpdateTab();
+                };
+
+
+                fm.ButRight.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    _page++;
+                    UpdateTab();
+                };
+
+                fm.ButLast.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    _page = (int)MaxPage;
+                    UpdateTab();
+                };
+            }
+            else
+            {
+                fm.NavPanel.Visibility = Visibility.Collapsed;
+            }
 
             if (!string.IsNullOrEmpty(KeyValue))
             {
@@ -204,7 +244,8 @@ namespace WpfBu.Models
                 SetFilterOrder();
             };
             AddInit(fm, this);
-            userMenu.Content = fm;
+            MenuControl = fm;
+            userMenu.Content = MenuControl;
             
 
         }
@@ -233,38 +274,7 @@ namespace WpfBu.Models
                 SetFilterOrder();
                 userContent.Content = MainGrid;
             };
-
-            FilterControl.ButUpdate.Click += (object sender, RoutedEventArgs e) =>
-            {
-                UpdateTab();
-            };
-
-            FilterControl.ButLeft.Click += (object sender, RoutedEventArgs e) =>
-            {
-                if (_page > 1)
-                    _page--;
-                UpdateTab();
-            };
-
-            FilterControl.ButFirst.Click += (object sender, RoutedEventArgs e) =>
-            {
-                _page = 1;
-                UpdateTab();
-            };
-
-
-            FilterControl.ButRight.Click += (object sender, RoutedEventArgs e) =>
-            {
-                _page++;
-                UpdateTab();
-            };
-
-            FilterControl.ButLast.Click += (object sender, RoutedEventArgs e) =>
-            {
-                _page = (int)MaxPage;
-                UpdateTab();
-            };
-
+            
         }
 
 
@@ -424,14 +434,14 @@ namespace WpfBu.Models
                 else
                     total = (Int32)TotalTable.Rows[0]["n_total"];
 
-                res = string.Format("просмотр {0} до {1} из {2} записей", (page - 1) * nrows + 1, ((page * nrows) < total)? (page * nrows):total, total);
+                res = string.Format("{0} - {1}/{2}", (page - 1) * nrows + 1, ((page * nrows) < total)? (page * nrows):total, total);
             }
             TotalString = res;
-            if (FilterControl != null)
+            if ( MenuControl != null)
             {
-                FilterControl.TotalString.Text = TotalString;
-                FilterControl.page.Text = page.ToString();
-                FilterControl.MaxPage.Text = MaxPage.ToString();
+                MenuControl.TotalString.Text = TotalString;
+                MenuControl.page.Text = page.ToString();
+                MenuControl.MaxPage.Text = MaxPage.ToString();
             }
 
         }

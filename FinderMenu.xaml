@@ -20,6 +20,33 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" x:Name="NavPanel">
+            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" x:Name="ButFirst">
+                <materialDesign:PackIcon Kind="SkipPreviousCircle" Height="32" Width="32" Foreground="White" />
+            </Button>
+            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" x:Name="ButLeft">
+                <materialDesign:PackIcon Kind="ArrowLeftDropCircle" Height="32" Width="32" Foreground="White" />
+            </Button>
+            <TextBox Width="auto" Text="{Binding page}" Margin="5 0 0 0" FontSize="14" Padding="1" x:Name="page"/>
+            <TextBlock VerticalAlignment="Center" FontSize="14" Margin="5 0 0 0">из</TextBlock>
+            <TextBlock VerticalAlignment="Center" FontSize="14" Margin="5 0 0 0" x:Name="MaxPage" Text="{Binding MaxPage}"></TextBlock>
+            <Button Style="{StaticResource MaterialDesignIconButton}" Margin="5 0 0 0"
+                                                 Height="32" Width="32" x:Name="ButRight">
+                <materialDesign:PackIcon Kind="ArrowRightDropCircle" Height="32" Width="32" Foreground="White" />
+            </Button>
+            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                 Height="32" Width="32" x:Name="ButLast">
+                <materialDesign:PackIcon Kind="SkipNextCircle" Height="32" Width="32" Foreground="White" />
+            </Button>
+            <Button Style="{StaticResource MaterialDesignIconButton}" ToolTip="Обновить" x:Name="ButUpdate"
+                                                 Height="32" Width="32" >
+                <materialDesign:PackIcon Kind="RefreshCircle" Height="32" Width="32" Foreground="White" />
+            </Button>
+        </StackPanel>
+        <TextBlock VerticalAlignment="Center" FontSize="14" DockPanel.Dock="Left" x:Name="TotalString" Text="{Binding TotalString}" Margin="8 0 0 0"/>
+
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" x:Name="ButPanel">
             <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                             HorizontalAlignment="Left"
