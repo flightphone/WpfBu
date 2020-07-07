@@ -4,12 +4,14 @@ using System.Text;
 using System.Data;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using System.Xml;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO;
 using MaterialDesignThemes;
 using MaterialDesignThemes.Wpf;
 
@@ -64,8 +66,8 @@ namespace WpfBu.Models
     public class Finder : RootForm
     {
 
-        
 
+        #region prop
         public DataGrid MainGrid { get; set; }
 
         public DataView MainView { get; set; }
@@ -110,10 +112,57 @@ namespace WpfBu.Models
                 _page = value;
             }
         }
-
         public string TotalString { get; set; }
 
         public Int64 MaxPage { get; set; }
+        #endregion
+
+        public override void start(object o)
+        {
+            try
+            {
+                string sql;
+                if (MainObj.IsPostgres)
+                    sql = "select iddeclare, decname, descr, dectype, decsql, keyfield, dispfield, keyvalue, dispvalue, keyparamname, dispparamname, isbasename, descript, addkeys, tablename, editproc, delproc, image_bmp, savefieldlist, p.paramvalue from t_rpdeclare d left join t_sysparams p on 'GridFind' || d.decname = p.paramname where iddeclare = ";
+                else
+                    sql = "select iddeclare, decname, descr, dectype, decsql, keyfield, dispfield, keyvalue, dispvalue, keyparamname, dispparamname, isbasename, descript, addkeys, tablename, editproc, delproc, image_bmp, savefieldlist, p.paramvalue from t_rpdeclare d left join t_sysparams p on 'GridFind' + d.decname = p.paramname where iddeclare = ";
+                sql = sql + o.ToString();
+
+                DataTable t_rp = MainObj.Dbutil.Runsql(sql);
+                DataRow rd = t_rp.Rows[0];
+                string paramvalue = rd["paramvalue"].ToString();
+                if (string.IsNullOrEmpty(SQLText))
+                    SQLText = rd["decsql"].ToString();
+                DecName = rd["decname"].ToString();
+                Descr = rd["descr"].ToString();
+                text = Descr;
+
+                EditProc = rd["editproc"].ToString();
+                DelProc = rd["delproc"].ToString();
+
+                KeyF = rd["keyfield"].ToString();
+                DispField = rd["dispfield"].ToString();
+                KeyValue = rd["keyvalue"].ToString();
+
+                nrows = (int)rd["dectype"];
+                pagination = (nrows >= 30);
+
+                CreateColumns(paramvalue);
+                UpdateTab();
+
+                CreateMenu();
+                CreateFilter();
+                CreateContent();
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+
+        #region startinit
         public virtual void AddInit(FinderMenu fm, Finder form)
         { 
         
@@ -165,7 +214,11 @@ namespace WpfBu.Models
             {
                 fm.NavPanel.Visibility = Visibility.Collapsed;
             }
-
+            fm.ButCSV.Click += (object sender, RoutedEventArgs e) =>
+            {
+                ExportCSV();
+            };
+            
             if (!string.IsNullOrEmpty(KeyValue))
             {
                 Button bt = new Button
@@ -277,51 +330,6 @@ namespace WpfBu.Models
             
         }
 
-
-        public override void start(object o)
-        {
-            try
-            {
-                string sql;
-                if (MainObj.IsPostgres)
-                    sql = "select iddeclare, decname, descr, dectype, decsql, keyfield, dispfield, keyvalue, dispvalue, keyparamname, dispparamname, isbasename, descript, addkeys, tablename, editproc, delproc, image_bmp, savefieldlist, p.paramvalue from t_rpdeclare d left join t_sysparams p on 'GridFind' || d.decname = p.paramname where iddeclare = ";
-                else
-                    sql = "select iddeclare, decname, descr, dectype, decsql, keyfield, dispfield, keyvalue, dispvalue, keyparamname, dispparamname, isbasename, descript, addkeys, tablename, editproc, delproc, image_bmp, savefieldlist, p.paramvalue from t_rpdeclare d left join t_sysparams p on 'GridFind' + d.decname = p.paramname where iddeclare = ";
-                sql = sql + o.ToString();
-
-                DataTable t_rp = MainObj.Dbutil.Runsql(sql);
-                DataRow rd = t_rp.Rows[0];
-                string paramvalue = rd["paramvalue"].ToString();
-                if (string.IsNullOrEmpty(SQLText))
-                    SQLText = rd["decsql"].ToString();
-                DecName = rd["decname"].ToString();
-                Descr = rd["descr"].ToString();
-                text = Descr;
-
-                EditProc = rd["editproc"].ToString();
-                DelProc = rd["delproc"].ToString();
-
-                KeyF = rd["keyfield"].ToString();
-                DispField = rd["dispfield"].ToString();
-                KeyValue = rd["keyvalue"].ToString();
-
-                nrows = (int)rd["dectype"];
-                pagination = (nrows >= 30);
-
-                CreateColumns(paramvalue);
-                UpdateTab();
-
-                CreateMenu();
-                CreateFilter();
-                CreateContent();
-
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-        }
 
         public void CreateColumns(string s)
         {
@@ -446,10 +454,51 @@ namespace WpfBu.Models
 
         }
 
+        public DataTable UpdateCSV()
+        {
+            string PrepareSQL = SQLText;
+            PrepareSQL = PrepareSQL.Replace("[Account]", MainObj.Account);
+            if (TextParams != null)
+                foreach (string k in TextParams.Keys)
+                {
+                    PrepareSQL = PrepareSQL.Replace("[" + k + "]", TextParams[k]);
+                }
+
+            string sql = PrepareSQL;
+            CompilerFilterOrder();
+            string decSQL = sql;
+            var localOrdField = "";
+            var n = sql.ToLowerInvariant().IndexOf("order by");
+            if (n != -1)
+            {
+                decSQL = sql.Substring(0, n);
+                localOrdField = sql.Substring(n + 8);
+            }
+            if (string.IsNullOrEmpty(OrdField))
+                OrdField = localOrdField;
+            if (!string.IsNullOrEmpty(addFilter))
+            {
+                if (decSQL.ToLowerInvariant().IndexOf(" where ") == -1 && decSQL.ToLowerInvariant().IndexOf(" where\n") == -1 && decSQL.ToLowerInvariant().IndexOf("\nwhere\n") == -1 && decSQL.ToLowerInvariant().IndexOf("\nwhere ") == -1)
+                    decSQL += " where ";
+                else
+                    decSQL += " and ";
+
+                decSQL += addFilter;
+            }
+            if (!string.IsNullOrEmpty(OrdField))
+                decSQL = decSQL + " order by " + OrdField;
+            sql = decSQL;
+            var data = MainObj.Dbutil.Runsql(sql, SQLParams);
+            return data;
+        }
+        
+
         public virtual void UpdateTab()
         {
             if (userContent!=null)
                 userContent.Content = MainGrid;
+
+
             string PrepareSQL = SQLText;
             PrepareSQL = PrepareSQL.Replace("[Account]", MainObj.Account);
             if (TextParams!=null)
@@ -558,7 +607,7 @@ namespace WpfBu.Models
             MainGrid.ItemsSource = MainView;
             UpdateTotal();
         }
-
+        #endregion
         public void CompilerFilterOrder()
         {
             
@@ -612,6 +661,59 @@ namespace WpfBu.Models
 
         public IEnumerable<string> Foods => new[] { "Нет", "По возрастанию", "По убыванию" };
 
+
+        private string rwCSV(DataRow rw)
+        {
+            string s = @"""" + rw[Fcols[0].FieldName].ToString().Replace(@"""", @"""""") + @"""";
+            for (int j = 1; j < Fcols.Count; j++)
+            {
+                s += @";""" + rw[Fcols[j].FieldName].ToString().Replace(@"""", @"""""") + @"""";
+            }
+            return s;
+        }
+        public void ExportCSV()
+        {
+            SaveFileDialog SD = new SaveFileDialog()
+            {
+                Filter = "Файлы csv|*.csv"
+            };
+            if (!((bool)SD.ShowDialog()))
+            {
+                return;
+            }
+            string FileName = SD.FileName;
+            StringBuilder Res = new StringBuilder();
+            var cols = MainGrid.Columns.Select(f => {
+                return @"""" + f.Header.ToString().Replace(@"""", @"""""") + @"""";
+                });
+
+            string s = string.Join(';', cols);
+            Res.AppendLine(s);
+
+            if (!pagination)
+            {
+                for (int i = 0; i < MainView.Count; i++)
+                {
+                    DataRow rw = MainView[i].Row;
+                    s = rwCSV(rw);
+                    Res.AppendLine(s);
+                }
+            }
+            else
+            {
+                DataTable data = UpdateCSV();
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    DataRow rw = data.Rows[i];
+                    s = rwCSV(rw);
+                    Res.AppendLine(s);
+                }
+            }
+            File.WriteAllText(FileName, Res.ToString().Trim(), Encoding.GetEncoding(1251));
+            //System.Diagnostics.Process batch = new System.Diagnostics.Process();
+            //batch.StartInfo.FileName = FileName;
+            //batch.Start();
+        }
         
     }
 }
