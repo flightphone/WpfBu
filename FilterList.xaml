@@ -37,7 +37,7 @@
                 <TextBlock VerticalAlignment="Center" FontSize="15" >Фильтровка и сортировка</TextBlock>
             </DockPanel>
         </materialDesign:ColorZone>
-        <DataGrid CanUserAddRows="False" 
+        <DataGrid CanUserAddRows="False" CanUserDeleteRows="False"
                            AutoGenerateColumns="False" x:Name="FilterGrid" HeadersVisibility="None"
                                   ItemsSource="{Binding Fcols}"
                                   >

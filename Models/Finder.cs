@@ -18,6 +18,15 @@ using MaterialDesignThemes.Wpf;
 
 namespace WpfBu.Models
 {
+
+    public class JoinRow
+    {
+        public string IdDeclare { get; set; }
+        public string classname { get; set; }
+        public Dictionary<string, string> fields { get; set; }
+        public string textField { get; set; }
+        public RootForm FindConrol { get; set; }
+    }
     public class FinderField : INotifyPropertyChanged
     {
         private string _Sort = "";
@@ -61,6 +70,17 @@ namespace WpfBu.Models
         public int? SortOrder {
             get; set; 
         }
+    }
+
+    public class EditField
+    {
+        public string FieldName { get; set; }
+        public string FieldCaption { get; set; }
+        public Control FieldEditor { get; set; }
+
+        public string DisplayFormat { get; set; }
+
+        public JoinRow joinRow { get; set; }
     }
 
     public class Finder : RootForm
@@ -115,6 +135,8 @@ namespace WpfBu.Models
         public string TotalString { get; set; }
 
         public Int64 MaxPage { get; set; }
+
+        public bool OKFun { get; set; }
         #endregion
 
         public override void start(object o)
@@ -170,11 +192,21 @@ namespace WpfBu.Models
 
         public virtual void CreateMenu()
         {
+            
+
             userMenu = new ContentControl();
+            
             FinderMenu fm = new FinderMenu()
             {
                 DataContext = this
             };
+
+            if (!OKFun)
+            {
+                fm.ButOK.Visibility = Visibility.Collapsed;
+                fm.ButCancel.Visibility = Visibility.Collapsed;
+            }
+
             if (pagination)
             {
 
@@ -709,7 +741,7 @@ namespace WpfBu.Models
                     Res.AppendLine(s);
                 }
             }
-            File.WriteAllText(FileName, Res.ToString().Trim(), Encoding.GetEncoding(1251));
+            File.WriteAllText(FileName, Res.ToString().Trim());
             //System.Diagnostics.Process batch = new System.Diagnostics.Process();
             //batch.StartInfo.FileName = FileName;
             //batch.Start();
