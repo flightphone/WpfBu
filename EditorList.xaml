@@ -24,13 +24,13 @@
             <ListView.View>
                 
                 <GridView>
-                <GridViewColumn>
+                <GridViewColumn Width="400">
                    <GridViewColumnHeader HorizontalAlignment="Right">
                         <TextBlock Text="Поле" />
                    </GridViewColumnHeader>
                    <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                                <TextBlock Text="{Binding FieldCaption}" />        
+                                <TextBlock Text="{Binding FieldCaption}"  HorizontalAlignment="Right"/>        
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>

@@ -73,6 +73,15 @@
             <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
                             HorizontalAlignment="Left"
                             Margin="0 0 8 0"
+                            ToolTip="Детали"
+                    x:Name="ButDetail">
+                <materialDesign:PackIcon Kind="Details" Height="24" Width="24" Foreground="MediumBlue"/>
+            </Button>
+            
+            
+            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
                             ToolTip="Выбрать"
                     x:Name="ButOK">
                 <materialDesign:PackIcon Kind="Check" Height="24" Width="24" Foreground="MediumBlue"/>
@@ -86,6 +95,34 @@
                 <materialDesign:PackIcon Kind="Close" Height="24" Width="24" Foreground="MediumBlue"/>
             </Button>
         </StackPanel>
+
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" x:Name="EditPanel">
+            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="8 0 8 0"
+                            ToolTip="Добавить"
+                    x:Name="AddBut">
+                <materialDesign:PackIcon Kind="Add" Height="24" Width="24" Foreground="MediumBlue"/>
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 8 0"
+                            ToolTip="Редактировать"
+                    x:Name="EditBut">
+                <materialDesign:PackIcon Kind="Edit" Height="24" Width="24" Foreground="MediumBlue"/>
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                            HorizontalAlignment="Left"
+                            Margin="0 0 0 0"
+                            ToolTip="Удалить"
+                    x:Name="DelBut">
+                <materialDesign:PackIcon Kind="Delete" Height="24" Width="24" Foreground="MediumBlue"/>
+            </Button>
+
+        
+        </StackPanel>
+        
         <TextBlock VerticalAlignment="Center" FontSize="22" HorizontalAlignment="Center" Text="{Binding Descr}"></TextBlock>
     </DockPanel>
 </UserControl>

@@ -60,8 +60,8 @@ namespace WpfBu.Models
         {
             SQLParams = new Dictionary<string, object>
             {
-                { "@DateStart", new DateTime(2000, 1, 1) },
-                { "@DateFinish", new DateTime(2099, 1, 1) },
+                { "@DateStart", new DateTime(2012, 8, 1) },
+                { "@DateFinish", new DateTime(2012, 8, 10) },
                 { "@AL_UTG", "<ВСЕ>"}
             };
             Editors = new List<EditField>()
@@ -171,7 +171,7 @@ namespace WpfBu.Models
             }
             JoinRow al = new JoinRow()
             {
-                IdDeclare = "185",
+                IdDeclare = "206",
                 fields = new Dictionary<string, string>()
                 {
                     {"AL_UTG", "AL_UTG" }
@@ -185,7 +185,7 @@ namespace WpfBu.Models
 
                 if (fc.MainGrid.SelectedItem == null)
                 {
-                    MessageBox.Show("Выберете запись", "Детали");
+                    MessageBox.Show("Выберете запись", "Выбор записи");
                     return;
                 }
                 DataRow rw = ((DataRowView)fc.MainGrid.SelectedItem).Row;

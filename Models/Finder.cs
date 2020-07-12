@@ -94,6 +94,8 @@ namespace WpfBu.Models
 
         public DataTable TotalTable { get; set; }
 
+        public DataTable data { get; set; }
+
         public string SQLText { get; set; }
         public string DecName { get; set; }
         public string Descr { get; set; }
@@ -137,6 +139,8 @@ namespace WpfBu.Models
         public Int64 MaxPage { get; set; }
 
         public bool OKFun { get; set; }
+
+        public Editor ReferEdit { get; set; }
         #endregion
 
         public override void start(object o)
@@ -172,6 +176,7 @@ namespace WpfBu.Models
                 CreateColumns(paramvalue);
                 UpdateTab();
 
+                CreateEditor();
                 CreateMenu();
                 CreateFilter();
                 CreateContent();
@@ -190,6 +195,15 @@ namespace WpfBu.Models
         
         }
 
+        public virtual void CreateEditor()
+        {
+            if (!string.IsNullOrEmpty(EditProc) && !OKFun)
+            {
+                ReferEdit = new Editor();
+                ReferEdit.start(this);
+            }
+
+        }
         public virtual void CreateMenu()
         {
             
@@ -205,6 +219,26 @@ namespace WpfBu.Models
             {
                 fm.ButOK.Visibility = Visibility.Collapsed;
                 fm.ButCancel.Visibility = Visibility.Collapsed;
+            }
+
+            if (string.IsNullOrEmpty(EditProc) || OKFun)
+            {
+                fm.EditPanel.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                fm.AddBut.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    ReferEdit.Add();
+                };
+                fm.EditBut.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    ReferEdit.Edit();
+                };
+                fm.DelBut.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    ReferEdit.Delete();
+                };
             }
 
             if (pagination)
@@ -250,29 +284,14 @@ namespace WpfBu.Models
             {
                 ExportCSV();
             };
-            
-            if (!string.IsNullOrEmpty(KeyValue))
+
+            if (!string.IsNullOrEmpty(KeyValue) && !OKFun)
             {
-                Button bt = new Button
-                {
-                    Style = (Style)Parent.Resources["MaterialDesignFloatingActionMiniAccentButton"],
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    ToolTip = "Детали",
-                    Margin = new Thickness() { Right = 8 },
-                    Content = new PackIcon()
-                    {
-                        Kind = PackIconKind.Details,
-                        Height = 24,
-                        Width = 24,
-                        Foreground = Brushes.MediumBlue
-                    },
 
-                };
-
-                bt.Click += (object sender, RoutedEventArgs e) =>
+                fm.ButDetail.Click += (object sender, RoutedEventArgs e) =>
                 {
 
-                    
+
 
                     if (MainGrid.SelectedItem == null)
                     {
@@ -280,7 +299,7 @@ namespace WpfBu.Models
                         return;
                     }
                     DataRow rw = ((DataRowView)MainGrid.SelectedItem).Row;
-                    
+
 
                     Finder res;
                     string idchiled = this.id + "_" + rw[KeyF].ToString();
@@ -310,10 +329,9 @@ namespace WpfBu.Models
 
                 };
 
-                fm.ButPanel.Children.Add(
-                    bt
-                    );
             }
+            else
+                fm.ButDetail.Visibility = Visibility.Collapsed;
 
             fm.FilterBut.Click += (object sender, RoutedEventArgs e) => {
                 userContent.Content = FilterControl;
@@ -629,7 +647,7 @@ namespace WpfBu.Models
 
             
             
-            DataTable data;
+            //DataTable data;
             if (pagination)
                  data = MainObj.Dbutil.Runsql(sql, SQLParams);
             else
