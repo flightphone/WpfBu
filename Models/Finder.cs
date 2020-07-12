@@ -204,6 +204,44 @@ namespace WpfBu.Models
             }
 
         }
+
+        public void OpenDetail()
+        {
+            if (MainGrid.SelectedItem == null)
+            {
+                MessageBox.Show("Выберете запись", "Детали");
+                return;
+            }
+            DataRow rw = ((DataRowView)MainGrid.SelectedItem).Row;
+
+
+            Finder res;
+            string idchiled = this.id + "_" + rw[KeyF].ToString();
+
+            if (Parent.formList.ContainsKey(idchiled))
+            {
+                res = (Finder)Parent.formList[idchiled];
+            }
+            else
+            {
+                res = new Finder
+                {
+                    id = idchiled,
+                    Parent = this.Parent
+                };
+                res.TextParams = new Dictionary<string, string>() { { KeyF, rw[KeyF].ToString() } };
+                res.start(KeyValue);
+                res.Descr = res.Descr + " (" + rw[DispField].ToString() + ")";
+                res.text = res.Descr;
+                Parent.formList.Add(idchiled, res);
+                Parent.WinListSource.Add(res);
+            }
+
+            Parent.userMenu.Content = res.userMenu;
+            Parent.userContent.Content = res.userContent;
+            Parent.CurrentId = idchiled;
+
+        }
         public virtual void CreateMenu()
         {
             
@@ -239,6 +277,8 @@ namespace WpfBu.Models
                 {
                     ReferEdit.Delete();
                 };
+                MainGrid.MouseDoubleClick += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
+                    ReferEdit.Edit();
             }
 
             if (pagination)
@@ -289,45 +329,14 @@ namespace WpfBu.Models
             {
 
                 fm.ButDetail.Click += (object sender, RoutedEventArgs e) =>
+                    OpenDetail();
+
+
+                if (string.IsNullOrEmpty(EditProc))
                 {
-
-
-
-                    if (MainGrid.SelectedItem == null)
-                    {
-                        MessageBox.Show("Выберете запись", "Детали");
-                        return;
-                    }
-                    DataRow rw = ((DataRowView)MainGrid.SelectedItem).Row;
-
-
-                    Finder res;
-                    string idchiled = this.id + "_" + rw[KeyF].ToString();
-
-                    if (Parent.formList.ContainsKey(idchiled))
-                    {
-                        res = (Finder)Parent.formList[idchiled];
-                    }
-                    else
-                    {
-                        res = new Finder
-                        {
-                            id = idchiled,
-                            Parent = this.Parent
-                        };
-                        res.TextParams = new Dictionary<string, string>() { { KeyF, rw[KeyF].ToString() } };
-                        res.start(KeyValue);
-                        res.Descr = res.Descr + " (" + rw[DispField].ToString() + ")";
-                        res.text = res.Descr;
-                        Parent.formList.Add(idchiled, res);
-                        Parent.WinListSource.Add(res);
-                    }
-
-                    Parent.userMenu.Content = res.userMenu;
-                    Parent.userContent.Content = res.userContent;
-                    Parent.CurrentId = idchiled;
-
-                };
+                    MainGrid.MouseDoubleClick += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
+                    OpenDetail();
+                }
 
             }
             else
@@ -353,7 +362,7 @@ namespace WpfBu.Models
 
         }
 
-
+        
         public virtual void CreateContent()
         {
             userContent = new ContentControl
@@ -361,7 +370,7 @@ namespace WpfBu.Models
                 Content = MainGrid
             };
         }
-
+        
         public void CreateFilter()
         {
             FilterControl = new FilterList()
@@ -385,6 +394,16 @@ namespace WpfBu.Models
         {
             MaxSortOrder = 0;
             Fcols = new ObservableCollection<FinderField>();
+            MainGrid = new DataGrid()
+            {
+                IsReadOnly = true,
+                CanUserAddRows = false,
+                CanUserDeleteRows = false,
+                CanUserSortColumns = false,
+                AutoGenerateColumns = false
+            };
+            if (string.IsNullOrEmpty(s))
+                return;
             XmlDocument xm = new XmlDocument();
             XmlElement xRoot, xCol;
             xm.LoadXml(s);
@@ -427,14 +446,7 @@ namespace WpfBu.Models
                 }
             }
 
-            MainGrid = new DataGrid()
-            {
-                IsReadOnly = true,
-                CanUserAddRows = false,
-                CanUserDeleteRows = false,
-                CanUserSortColumns = false,
-                AutoGenerateColumns = false
-            };
+            
 
             MainGrid.LoadingRow += MainGrid_LoadingRow;
 

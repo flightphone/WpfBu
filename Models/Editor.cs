@@ -145,6 +145,12 @@ namespace WpfBu.Models
                         fc.start(jr.IdDeclare);
                         fc.MenuControl.ButOK.Tag = i;
                         fc.MenuControl.ButOK.Click += ButOK_Click;
+                        fc.MainGrid.MouseDoubleClick += (object sender, System.Windows.Input.MouseButtonEventArgs e) =>
+                        {
+                            ButOK_Click(fc.MenuControl.ButOK,  null);
+                        };
+
+
                         fc.MenuControl.ButCancel.Click += ButCancel_Click;
                         jr.FindConrol = fc;
                     }
