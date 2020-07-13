@@ -83,10 +83,32 @@ namespace WpfBu.Models
             }
             DataRow rw = ((DataRowView)ReferFinder.MainGrid.SelectedItem).Row;
             string s = $"Удалить запись '{rw[ReferFinder.DispField]}'?";
-            MessageBox.Show(s);
+            if (MessageBox.Show(s, "Подтвердите удаление записи", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                return;
+            var Param = new Dictionary<string, object>();
+            string pname = "@" + ReferFinder.KeyF;
+            Param.Add(pname, rw[ReferFinder.KeyF]);
+            string sql;
+            if (MainObj.IsPostgres)
+                sql = $"select * from {ReferFinder.DelProc} ({pname});";
+            else
+                sql = $"exec {ReferFinder.DelProc} {pname}";
+
+            try
+            {
+                var d = MainObj.Dbutil.Runsql(sql, Param);
+                ReferFinder.data.Rows.Remove(rw);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка удаления", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
         }
 
-        public virtual void Save()
+        
+
+        public virtual bool Save()
         {
             SetDefault();
             var vals = new List<string>();
@@ -117,10 +139,10 @@ namespace WpfBu.Models
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return false;
             }
             if (data.Rows.Count == 0)
-                return;
+                return true;
 
             DataRow rw = data.Rows[0];
             if (data.Columns.Count == 1)
@@ -140,6 +162,8 @@ namespace WpfBu.Models
 
             if (FlagAdd)
                 ReferFinder.data.Rows.Add(ParentRow);
+
+            return true;
 
         }
 
@@ -323,11 +347,11 @@ namespace WpfBu.Models
                 ParamText.Descr.Text = "Редактор";
                 ParamText.ButOK.Click += (object sender, RoutedEventArgs e) =>
                 {
-
-
-                    Save();
-                    ReferFinder.userContent.Content = ReferFinder.MainGrid;
-                    ReferFinder.userMenu.Content = ReferFinder.MenuControl;
+                    if (Save())
+                    {
+                        ReferFinder.userContent.Content = ReferFinder.MainGrid;
+                        ReferFinder.userMenu.Content = ReferFinder.MenuControl;
+                    }
 
                 };
 

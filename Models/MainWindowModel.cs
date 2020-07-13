@@ -52,7 +52,7 @@ namespace WpfBu.Models
         public MainWindowModel()
         {
             
-            MainObj.IsPostgres = true;
+            MainObj.IsPostgres = false;
             string sql;
             if (MainObj.IsPostgres)
             {
