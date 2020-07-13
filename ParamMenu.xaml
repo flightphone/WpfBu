@@ -26,7 +26,7 @@
                             Margin="0 0 8 0"
                             ToolTip="Сохранить"
                     x:Name="ButOK">
-                <materialDesign:PackIcon Kind="Check" Height="24" Width="24" Foreground="MediumBlue"/>
+                <materialDesign:PackIcon Kind="ContentSave" Height="24" Width="24" Foreground="MediumBlue"/>
             </Button>
 
             <Button Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"

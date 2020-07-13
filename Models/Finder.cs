@@ -103,6 +103,10 @@ namespace WpfBu.Models
         public string EditProc { get; set; }
         public string DelProc { get; set; }
 
+        public string TableName { get; set; }
+
+        public string SaveFieldList { get; set; }
+
         public string KeyF { get; set; }
         public string DispField { get; set; }
         public string KeyValue { get; set; }
@@ -122,6 +126,8 @@ namespace WpfBu.Models
         public Dictionary<string, string> TextParams { get; set; }
 
         public Dictionary<string, object> SQLParams { get; set; }
+
+        public Dictionary<string, object> DefaultValues { get; set; }
 
         public bool pagination { get; set; }
 
@@ -165,13 +171,32 @@ namespace WpfBu.Models
 
                 EditProc = rd["editproc"].ToString();
                 DelProc = rd["delproc"].ToString();
+                TableName = rd["tablename"].ToString();
+
+                if (string.IsNullOrEmpty(TableName) && !string.IsNullOrEmpty(EditProc))
+                {
+                    TableName = EditProc.ToLower().Replace("p_", "").Replace("_edit", "");
+                }
 
                 KeyF = rd["keyfield"].ToString();
                 DispField = rd["dispfield"].ToString();
                 KeyValue = rd["keyvalue"].ToString();
+                SaveFieldList = rd["savefieldlist"].ToString();
 
-                nrows = (int)rd["dectype"];
+                if (rd["dectype"] == DBNull.Value)
+                    nrows = 7;
+                else
+                    nrows = (int)rd["dectype"];
                 pagination = (nrows >= 30);
+
+                if (DefaultValues == null)
+                    DefaultValues = new Dictionary<string, object>();
+
+                DefaultValues.Add("audtuser", MainObj.Account);
+                DefaultValues.Add("last_change_user", MainObj.Account);
+
+
+
 
                 CreateColumns(paramvalue);
                 UpdateTab();
@@ -230,6 +255,7 @@ namespace WpfBu.Models
                     Parent = this.Parent
                 };
                 res.TextParams = new Dictionary<string, string>() { { KeyF, rw[KeyF].ToString() } };
+                res.DefaultValues = new Dictionary<string, object>() { { KeyF, rw[KeyF] } };
                 res.start(KeyValue);
                 res.Descr = res.Descr + " (" + rw[DispField].ToString() + ")";
                 res.text = res.Descr;

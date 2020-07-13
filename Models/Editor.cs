@@ -7,6 +7,7 @@ using System.Data;
 using System.Windows.Controls;
 using System.Globalization;
 using System.Drawing;
+using System.Linq;
 
 namespace WpfBu.Models
 {
@@ -18,25 +19,43 @@ namespace WpfBu.Models
 
         public DataRow WorkRow { get; set; }
 
+        public DataRow ParentRow { get; set; }
+
         public DataTable ParamTab { get; set; }
 
         public EditorList El { get; set; }
+
+        public string[] SaveFieldList { get; set; }
         public ParamMenu ParamText { get; set; }
 
+        public void SetDefault()
+        {
+            foreach (string s in ReferFinder.DefaultValues.Keys)
+            {
+                if (ParamTab.Columns.Contains(s))
+                    WorkRow[s] = ReferFinder.DefaultValues[s];
+            }
+        }
+
+        public bool FlagAdd { get; set; }
         public virtual void Add()
         {
+            FlagAdd = true;
             ParamText.Descr.Text = "Новая запись";
             for (int i = 0; i < ParamTab.Columns.Count; i++)
                 WorkRow[i] = DBNull.Value;
 
+            WorkRow[ReferFinder.KeyF] = MainObj.Dbutil.NewID(ReferFinder.TableName);
+            SetDefault();
             ReferFinder.userContent.Content = El;
             ReferFinder.userMenu.Content = ParamText;
 
-            //MessageBox.Show("Add");
         }
 
         public virtual void Edit()
         {
+
+            FlagAdd = false;
             if (ReferFinder.MainGrid.SelectedItem == null)
             {
                 MessageBox.Show("Выберете запись для редактирования", "Редактирование записи");
@@ -46,11 +65,12 @@ namespace WpfBu.Models
             for (int i = 0; i < ParamTab.Columns.Count; i++)
                 WorkRow[i] = rw[i];
 
+            ParentRow = rw;
+
             ParamText.Descr.Text = rw[ReferFinder.DispField].ToString();
             ReferFinder.userContent.Content = El;
             ReferFinder.userMenu.Content = ParamText;
 
-            //MessageBox.Show("Edit");
         }
 
         public virtual void Delete()
@@ -68,6 +88,58 @@ namespace WpfBu.Models
 
         public virtual void Save()
         {
+            SetDefault();
+            var vals = new List<string>();
+            var Param = new Dictionary<string, object>();
+            foreach (string fname in SaveFieldList)
+            {
+                string pname = "@_" + fname;
+                Param.Add(pname, WorkRow[fname]);
+                string val = "";
+                if (MainObj.IsPostgres)
+                    val = $"_{fname} => {pname}";
+                else
+                    val = $"@{fname} = {pname}";
+                vals.Add(val);
+            }
+            string sqlpar = string.Join(",", vals);
+            string sql = "";
+            if (MainObj.IsPostgres)
+                sql = $"select * from {ReferFinder.EditProc}({sqlpar})";
+            else
+                sql = $"exec {ReferFinder.EditProc} {sqlpar}";
+
+            DataTable data;
+            try
+            {
+                data = MainObj.Dbutil.Runsql(sql, Param);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка сохранения", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (data.Rows.Count == 0)
+                return;
+
+            DataRow rw = data.Rows[0];
+            if (data.Columns.Count == 1)
+                WorkRow[ReferFinder.KeyF] = rw[0];
+            else
+            {
+                for (int i = 0; i < data.Columns.Count; i++)
+                    if (ParamTab.Columns.Contains(data.Columns[i].ColumnName))
+                        WorkRow[data.Columns[i].ColumnName] = rw[i];
+            }
+
+            if (FlagAdd)
+                ParentRow = ReferFinder.data.NewRow();
+
+            for (int i = 0; i < ParamTab.Columns.Count; i++)
+                ParentRow[i] = WorkRow[i];
+
+            if (FlagAdd)
+                ReferFinder.data.Rows.Add(ParentRow);
 
         }
 
@@ -110,12 +182,21 @@ namespace WpfBu.Models
             ParamTab = ReferFinder.data.Clone();
             WorkRow = ParamTab.NewRow();
             ParamTab.Rows.Add(WorkRow);
+            
+            string slist = ReferFinder.SaveFieldList;
+            if (string.IsNullOrEmpty(slist))
+            {
+                DataColumn[] a = new DataColumn[ParamTab.Columns.Count];
+                ParamTab.Columns.CopyTo(a, 0);
+                slist = string.Join(",", a.Select(f => f.ColumnName));
+            }
+            SaveFieldList = slist.Split(',');
+
             Editors = new List<EditField>();
             int minwidth = 500;
 
             string sql = $"select * from t_sysFieldMap where decname = '{ReferFinder.DecName}'";
             DataTable sysFieldMap = MainObj.Dbutil.Runsql(sql);
-
 
             for (int i = 0; i < ReferFinder.Fcols.Count; i++)
             {

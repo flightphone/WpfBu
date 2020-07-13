@@ -56,5 +56,51 @@ namespace WpfBu.Models
             }
             return data;
         }
+
+
+        public object NewID(string tablename)
+        {
+            object res = DBNull.Value;
+
+            if (MainObj.IsPostgres)
+            {
+                var sql = "select column_default, udt_name  from information_schema.columns  where table_name = @tablename and ordinal_position = 1";
+                var rec = Runsql(sql, new Dictionary<string, object>() { {"@tablename", tablename } });
+
+                if (rec.Rows.Count == 0)
+                {
+                    return res;
+                };
+
+                if (rec.Rows[0]["column_default"].ToString() == "" && rec.Rows[0]["udt_name"].ToString() != "uuid")
+                {
+                    return res;
+                };
+                var c_default = rec.Rows[0]["column_default"].ToString();
+                if (rec.Rows[0]["udt_name"].ToString() == "uuid")
+                    c_default = "uuid_generate_v1()";
+                sql = "select " + c_default + " id";
+                var result = Runsql(sql);
+                return result.Rows[0]["id"];
+            }
+            else
+            {
+                var sql = "select c.user_type_id from sys.tables t(nolock) inner join sys.columns c(nolock) on t.object_id = c.object_id where t.name = @tablename and column_id = 1";
+                var rec = Runsql(sql, new Dictionary<string, object>() { { "@tablename", tablename } });
+                if (rec.Rows.Count == 0)
+                {
+                    return res;
+                };
+                if ((int)rec.Rows[0][0] == 36)
+                {
+                    return Guid.NewGuid();
+                }
+                else
+                {
+                    return res;
+                }
+            }
+
+        }
     }
 }
