@@ -57,7 +57,31 @@ namespace WpfBu.Models
             return data;
         }
 
-
+        public void ExecSQL(string sql, Dictionary<string, object> par)
+        {
+            if (MainObj.IsPostgres)
+            {
+                var cn = new NpgsqlConnection(MainObj.ConnectionString);
+                var cmd = new NpgsqlCommand(sql, cn);
+                if (par != null)
+                    foreach (string s in par.Keys)
+                        cmd.Parameters.AddWithValue(s, par[s]);
+                cn.Open();
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+            else
+            {
+                var cn = new SqlConnection(MainObj.ConnectionString);
+                var cmd = new SqlCommand(sql, cn);
+                if (par != null)
+                    foreach (string s in par.Keys)
+                        cmd.Parameters.AddWithValue(s, par[s]);
+                cn.Open();
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
+        }
         public object NewID(string tablename)
         {
             object res = DBNull.Value;

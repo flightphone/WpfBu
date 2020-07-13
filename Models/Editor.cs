@@ -75,7 +75,7 @@ namespace WpfBu.Models
 
         public virtual void Delete()
         {
-            //MessageBox.Show("Delete");
+            
             if (ReferFinder.MainGrid.SelectedItem == null)
             {
                 MessageBox.Show("Выберете запись для удаления", "Удаление записи");
@@ -96,7 +96,7 @@ namespace WpfBu.Models
 
             try
             {
-                var d = MainObj.Dbutil.Runsql(sql, Param);
+                MainObj.Dbutil.ExecSQL(sql, Param);
                 ReferFinder.data.Rows.Remove(rw);
             }
             catch (Exception ex)
