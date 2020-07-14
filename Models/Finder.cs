@@ -284,6 +284,10 @@ namespace WpfBu.Models
                 fm.ButOK.Visibility = Visibility.Collapsed;
                 fm.ButCancel.Visibility = Visibility.Collapsed;
             }
+            else
+            {
+                fm.ButCSV.Visibility = Visibility.Collapsed;
+            }
 
             if (string.IsNullOrEmpty(EditProc) || OKFun)
             {
@@ -307,14 +311,18 @@ namespace WpfBu.Models
                     ReferEdit.Edit();
             }
 
+            fm.ButUpdate.Click += (object sender, RoutedEventArgs e) =>
+            {
+                UpdateTab();
+            };
+
+            fm.ButPage.Click += (object sender, RoutedEventArgs e) =>
+            {
+                fm.PopupPage.IsPopupOpen = true;
+            };
+
             if (pagination)
             {
-
-
-                fm.ButUpdate.Click += (object sender, RoutedEventArgs e) =>
-                {
-                    UpdateTab();
-                };
 
                 fm.ButLeft.Click += (object sender, RoutedEventArgs e) =>
                 {
@@ -530,7 +538,10 @@ namespace WpfBu.Models
                 else
                     total = (Int32)TotalTable.Rows[0]["n_total"];
 
-                res = string.Format("{0} - {1}/{2}", (page - 1) * nrows + 1, ((page * nrows) < total)? (page * nrows):total, total);
+                if (page > 0)
+                    res = string.Format("{0} - {1}/{2}", (page - 1) * nrows + 1, ((page * nrows) < total) ? (page * nrows) : total, total);
+                else
+                    res = "0 записей";
             }
             TotalString = res;
             if ( MenuControl != null)
@@ -658,6 +669,9 @@ namespace WpfBu.Models
                     MaxPage += 1;
                 if (page > MaxPage)
                     _page = (int)MaxPage;
+
+                if (MaxPage > 0 && _page == 0)
+                    _page = 1;
 
             }
             else
