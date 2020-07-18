@@ -24,6 +24,6 @@
                       DockPanel.Dock="Right" Height="24" Width="24" x:Name="ButFind">
             <materialDesign:PackIcon Kind="Magnify" Height="24" Width="24" Foreground="White" />
         </Button>
-        <TextBox  VerticalAlignment="Center" x:Name="EditFind"/>
+        <TextBox  VerticalAlignment="Center" x:Name="EditFind" IsReadOnly="True"/>
     </DockPanel>
 </UserControl>
