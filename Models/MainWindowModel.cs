@@ -52,7 +52,7 @@ namespace WpfBu.Models
         public MainWindowModel()
         {
             
-            MainObj.IsPostgres = false;
+            MainObj.IsPostgres = true;
             string sql;
             if (MainObj.IsPostgres)
             {
@@ -100,18 +100,22 @@ namespace WpfBu.Models
                         treeItem ilist = new treeItem(ItemCaption);
                         ilist.id = (k == bi.Length - 1) ? mi["idmenu"].ToString() : mi["idmenu"].ToString() + "_node";
                         ilist.attributes = new Dictionary<string, string>() { { "link1", mi["link1"].ToString() }, { "params", mi["params"].ToString() } };
-                        
+
+                        /*
                         if (string.IsNullOrEmpty(ItemIcon))
                             ilist.Kind = PackIconKind.Paper;
                         else
                             ilist.Kind = (PackIconKind)Enum.Parse(typeof(PackIconKind), ItemIcon);
-
-
+                        */
+                        ilist.Kind = PackIconKind.Paper;
                         if (Mn.children == null)
                         { Mn.children = new ObservableCollection<treeItem>(); }
                         Mn.children.Add(ilist);
                         Mn.state = "closed";
 
+                        if (Mn.Kind == PackIconKind.Paper)
+                            Mn.Kind = PackIconKind.Folder;
+                        /*
                         if (string.IsNullOrEmpty(ItemIcon))
                         {
                             if (Mn.Kind == PackIconKind.Paper)
@@ -122,10 +126,10 @@ namespace WpfBu.Models
                             if (Mn.Kind == PackIconKind.Paper || Mn.Kind == PackIconKind.Folder)
                                 Mn.Kind = (PackIconKind)Enum.Parse(typeof(PackIconKind), ItemIcon);
                         }
+                        */
 
 
-                        
-                        
+
                         if (k != bi.Length - 1)
                         {
                             CreateItems(Root + ItemCaption + "/", ilist, Tab);
